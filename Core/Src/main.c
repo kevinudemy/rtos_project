@@ -4,6 +4,7 @@
 
 #include "gpio.h"
 #include "rcc.h"
+#include "error_handler_task.h"
 #include "FreeRTOSConfig.h"
 #include "FreeRTOSTasks.h"
 
@@ -53,12 +54,17 @@ int main(void)
  */
 static void startup_task(void *param)
 {
-  for (;;)
+  // Start the Error Handler Task
+  error_handler_task_start();
+
+  // Test for the Error Handler Task
+  for (event_id_e error = EVT_SYS_HEALTH_AWDG_THRESHOLD_EXCEEDED; error < EVT_MAX; error++)
   {
-    // USER LED test
-    gpio_toggle_pin(USER_LED_PORT, USER_LED_PIN);
-    vTaskDelay(pdMS_TO_TICKS(500));
+    error_handler_send_msg(error);
+    vTaskDelay(pdMS_TO_TICKS(1000));  // Add delay to ensure each message is processed
   }
+  // After this point, you should check the error_counts array
+  // to verify that each error event ID has been counted correctly.
 
   // Delete the startup task
   vTaskDelete(NULL);
