@@ -2,9 +2,12 @@
  * Application entry point.
  */
 
+#include "button.h"
 #include "gpio.h"
+#include "irq.h"
 #include "rcc.h"
 #include "error_handler_task.h"
+#include "sys_health_monitor_task.h"
 #include "FreeRTOSConfig.h"
 #include "FreeRTOSTasks.h"
 
@@ -37,6 +40,9 @@ int main(void)
   // Initialize the required GPIOs
   gpio_init();
 
+  // Set IRQ priorities
+  irq_set_priorities();
+
   // Create the startup task
   startup();
 
@@ -54,17 +60,17 @@ int main(void)
  */
 static void startup_task(void *param)
 {
+  // Initialize the USER button
+  button_init();
+
+  // Check if the IWDG caused a reset
+  button_check_and_acknowledge_iwdg_event();
+
   // Start the Error Handler Task
   error_handler_task_start();
 
-  // Test for the Error Handler Task
-  for (event_id_e error = EVT_SYS_HEALTH_AWDG_THRESHOLD_EXCEEDED; error < EVT_MAX; error++)
-  {
-    error_handler_send_msg(error);
-    vTaskDelay(pdMS_TO_TICKS(1000));  // Add delay to ensure each message is processed
-  }
-  // After this point, you should check the error_counts array
-  // to verify that each error event ID has been counted correctly.
+  // Start the System Health Monitor Task
+  sys_health_monitor_task_start();
 
   // Delete the startup task
   vTaskDelete(NULL);

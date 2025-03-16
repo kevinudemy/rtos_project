@@ -204,6 +204,10 @@ void gpio_init(void)
 {
   // Enable clocks for GPIOs
   RCC_GPIOA_CLK_ENABLE();
+  RCC_GPIOC_CLK_ENABLE();
+
+  // Enable SYSCFG module to enable GPIO ISRs
+  RCC_SYSCFG_CLK_ENABLE();
 
   // USER LED
   gpio_pin_config(USER_LED_PORT,
@@ -213,6 +217,15 @@ void gpio_init(void)
                   GPIO_OUTPUT_PUSHPULL,
                   GPIO_SPEED_LOW,
                   GPIO_PULL_NONE);
+
+  // USER Button
+  gpio_pin_config(USER_BUTTON_PORT,
+                  USER_BUTTON_PIN,
+                  GPIO_MODE_INPUT,
+                  GPIO_AF_NONE,
+                  GPIO_OUTPUT_NONE,
+                  GPIO_SPEED_LOW,
+                  GPIO_PULL_UP);
 }
 
 void gpio_write_pin(GPIO_TypeDef *port, gpio_num_e pin, gpio_pin_state_e pin_state)

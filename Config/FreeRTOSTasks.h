@@ -32,5 +32,16 @@
 #define ERROR_HANDLER_TASK_STACK_SIZE     (256)
 #define ERROR_HANDLER_TASK_PRIORITY       (configMAX_PRIORITIES - 2)
 
+/**
+ * The System Health Monitor Task oversees the overall health of the system.
+ * Currently, this includes monitoring the MCU's internal temperature and
+ * checking the status of critical tasks and resetting the watchdog timer if they are operational.
+ * The task has a low priority to ensure that higher priority tasks get CPU time first,
+ * preventing them from being starved and causing a system reset if they fail to update.
+ * Stack size is set at 256 for prototyping; optimize later based on usage.
+ */
+#define SYS_HEALTH_MONITOR_TASK_STACK_SIZE  (256)
+#define SYS_HEALTH_MONITOR_TASK_PRIORITY    (configMAX_PRIORITIES - 4)
+
 
 #endif /* FREERTOSTASKS_H_ */
