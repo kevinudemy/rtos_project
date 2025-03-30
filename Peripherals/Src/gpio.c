@@ -204,6 +204,7 @@ void gpio_init(void)
 {
   // Enable clocks for GPIOs
   RCC_GPIOA_CLK_ENABLE();
+  RCC_GPIOB_CLK_ENABLE();
   RCC_GPIOC_CLK_ENABLE();
 
   // Enable SYSCFG module to enable GPIO ISRs
@@ -226,6 +227,31 @@ void gpio_init(void)
                   GPIO_OUTPUT_NONE,
                   GPIO_SPEED_LOW,
                   GPIO_PULL_UP);
+
+  // Test pin
+  gpio_pin_config(TEST_PORT,
+                  TEST_PIN,
+                  GPIO_MODE_OUTPUT,
+                  GPIO_AF_NONE,
+                  GPIO_OUTPUT_PUSHPULL,
+                  GPIO_SPEED_FAST,
+                  GPIO_PULL_DOWN);
+
+  // Sensirion sensors
+  gpio_pin_config(SENSIRION_SCL_PORT,
+                  SENSIRION_SCL_PIN,
+                  GPIO_MODE_ALTFUNC,
+                  GPIO_AF_4,
+                  GPIO_OUTPUT_OPENDRAIN,
+                  GPIO_SPEED_FAST,
+                  GPIO_PULL_NONE);
+  gpio_pin_config(SENSIRION_SDA_PORT,
+                  SENSIRION_SDA_PIN,
+                  GPIO_MODE_ALTFUNC,
+                  GPIO_AF_4,
+                  GPIO_OUTPUT_OPENDRAIN,
+                  GPIO_SPEED_FAST,
+                  GPIO_PULL_NONE);
 }
 
 void gpio_write_pin(GPIO_TypeDef *port, gpio_num_e pin, gpio_pin_state_e pin_state)

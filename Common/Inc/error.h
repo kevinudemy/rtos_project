@@ -17,10 +17,15 @@ typedef int error_t;
  */
 typedef enum
 {
-  ERR_OK = 0,
-  ERR_FAIL = -1,
-  ERR_TIMEOUT = -2,
-  ERR_INVALID_PARAM = -3
+  ERR_OK                          = 0,
+  ERR_FAIL                        = -1,
+  ERR_TIMEOUT                     = -2,
+  ERR_INVALID_PARAM               = -3,
+  SENSIRION_SHT_PROBE_FAILED      = -4,
+  SENSIRION_GET_RHT_SIGNAL_FAILED = -5,
+  SENSIRION_SGP_PROBE_FAILED      = -6,
+  SENSIRION_GET_SGP_SIGNAL_FAILED = -7,
+  SENSIRION_SET_RHT_SIGNAL_FAILED = -8
 } error_e;
 
 #endif /* INC_ERROR_H_ */

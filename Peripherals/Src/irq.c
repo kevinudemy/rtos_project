@@ -14,4 +14,8 @@ void irq_set_priorities(void)
 
   // Button EXTI
   NVIC_SetPriority(EXTI15_10_IRQn, IRQ_EXTI15_10_PRIORITY);
+
+  // Sensirion sensors & related timer
+  NVIC_SetPriority(I2C1_EV_IRQn, IRQ_I2C1_EV_PRIORITY);
+  NVIC_SetPriority(TIM5_IRQn, IRQ_TIM5_PRIORITY);
 }

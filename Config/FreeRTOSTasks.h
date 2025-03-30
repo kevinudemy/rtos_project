@@ -43,5 +43,14 @@
 #define SYS_HEALTH_MONITOR_TASK_STACK_SIZE  (256)
 #define SYS_HEALTH_MONITOR_TASK_PRIORITY    (configMAX_PRIORITIES - 4)
 
+/**
+ * The Sensors Task is responsible for periodically acquiring data from
+ * the sensors and updating the data manager. It operates at a relatively high
+ * priority level to ensure timely data acquisition and processing.
+ * The stack size is initially set to 512 for prototyping; optimize later based on usage.
+ */
+#define SENSORS_TASK_STACK_SIZE               (512)
+#define SENSORS_TASK_PRIORITY                 (configMAX_PRIORITIES - 3)
+
 
 #endif /* FREERTOSTASKS_H_ */

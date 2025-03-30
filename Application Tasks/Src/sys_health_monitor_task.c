@@ -168,7 +168,7 @@ void ADC_IRQHandler(void)
   if (ADC1->SR & ADC_SR_EOC)
   {
     // Toggle GPIO pin (used for debugging and signaling purposes)
-    gpio_toggle_pin(USER_LED_PORT, USER_LED_PIN);
+//    gpio_toggle_pin(USER_LED_PORT, USER_LED_PIN);
 
     // Read the ADC value from the temperature sensor
     adc_temp_val = ADC1->DR;
