@@ -7,6 +7,7 @@
 #include "irq.h"
 #include "rcc.h"
 #include "error_handler_task.h"
+#include "modbus_slave_task.h"
 #include "sensors_task.h"
 #include "sys_health_monitor_task.h"
 #include "FreeRTOSConfig.h"
@@ -75,6 +76,9 @@ static void startup_task(void *param)
 
   // Start the System Health Monitor Task
   sys_health_monitor_task_start();
+
+  // Start the Modbus Tasks
+  modbus_slave_tasks_start();
 
   // Delete the startup task
   vTaskDelete(NULL);

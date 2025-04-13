@@ -252,6 +252,22 @@ void gpio_init(void)
                   GPIO_OUTPUT_OPENDRAIN,
                   GPIO_SPEED_FAST,
                   GPIO_PULL_NONE);
+
+  // Modbus
+  gpio_pin_config(MODBUS_TX_PORT,
+                  MODBUS_TX_PIN,
+                  GPIO_MODE_ALTFUNC,
+                  GPIO_AF_7,
+                  GPIO_OUTPUT_PUSHPULL,
+                  GPIO_SPEED_FAST,
+                  GPIO_PULL_NONE);
+  gpio_pin_config(MODBUS_RX_PORT,
+                  MODBUS_RX_PIN,
+                  GPIO_MODE_ALTFUNC,
+                  GPIO_AF_7,
+                  GPIO_OUTPUT_PUSHPULL,
+                  GPIO_SPEED_FAST,
+                  GPIO_PULL_NONE);
 }
 
 void gpio_write_pin(GPIO_TypeDef *port, gpio_num_e pin, gpio_pin_state_e pin_state)

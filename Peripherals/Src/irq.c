@@ -18,4 +18,7 @@ void irq_set_priorities(void)
   // Sensirion sensors & related timer
   NVIC_SetPriority(I2C1_EV_IRQn, IRQ_I2C1_EV_PRIORITY);
   NVIC_SetPriority(TIM5_IRQn, IRQ_TIM5_PRIORITY);
+
+  // Modbus
+  NVIC_SetPriority(USART2_IRQn, IRQ_USART2_PRIORITY);
 }

@@ -27,5 +27,11 @@
 #define SENSIRION_SDA_PORT  GPIOB
 #define SENSIRION_SDA_PIN   GPIO_PIN_9
 
+// Modbus Communication Interface
+#define MODBUS_TX_PORT      GPIOA
+#define MODBUS_TX_PIN       GPIO_PIN_2
+#define MODBUS_RX_PORT      GPIOA
+#define MODBUS_RX_PIN       GPIO_PIN_3
+
 
 #endif /* INC_GPIO_DEFS_H_ */

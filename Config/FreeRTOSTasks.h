@@ -52,5 +52,15 @@
 #define SENSORS_TASK_STACK_SIZE               (512)
 #define SENSORS_TASK_PRIORITY                 (configMAX_PRIORITIES - 3)
 
+/**
+ * The Modbus Slave Task handles communication with the Modbus master,
+ * including processing commands and managing data transfers. Its lower priority
+ * ensures the sensors task and system health monitor take precedence for timely
+ * data acquisition and watchdog updates. The stack size is set to 512 for
+ * prototyping and can be optimized as needed.
+ */
+#define MODBUS_SLAVE_TASK_STACK_SIZE          (512)
+#define MODBUS_SLAVE_TASK_PRIORITY            (configMAX_PRIORITIES - 5)
+
 
 #endif /* FREERTOSTASKS_H_ */
