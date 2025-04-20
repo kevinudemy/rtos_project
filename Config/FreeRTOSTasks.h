@@ -62,5 +62,16 @@
 #define MODBUS_SLAVE_TASK_STACK_SIZE          (512)
 #define MODBUS_SLAVE_TASK_PRIORITY            (configMAX_PRIORITIES - 5)
 
+/**
+ * This task processes data updates in the Modbus system, managing the
+ * updates related to various registers based on inputs from the Modbus Slave
+ * task or Sensors Task. It has a slightly lower priority compared to the
+ * Modbus Slave task to allow the Slave task to promptly respond to new
+ * commands from the master. The stack size is set to 512 for
+ * prototyping and can be optimized as needed.
+ */
+#define MODBUS_DATA_MGR_TASK_STACK_SIZE       (512)
+#define MODBUS_DATA_MGR_TASK_PRIORITY         (configMAX_PRIORITIES - 6)
+
 
 #endif /* FREERTOSTASKS_H_ */

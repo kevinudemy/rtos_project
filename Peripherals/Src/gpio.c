@@ -268,6 +268,36 @@ void gpio_init(void)
                   GPIO_OUTPUT_PUSHPULL,
                   GPIO_SPEED_FAST,
                   GPIO_PULL_NONE);
+
+  // FRAM
+  gpio_pin_config(FRAM_SCK_PORT,
+                  FRAM_SCK_PIN,
+                  GPIO_MODE_ALTFUNC,
+                  GPIO_AF_5,
+                  GPIO_OUTPUT_PUSHPULL,
+                  GPIO_SPEED_HIGH,
+                  GPIO_PULL_NONE);
+  gpio_pin_config(FRAM_MISO_PORT,
+                  FRAM_MISO_PIN,
+                  GPIO_MODE_ALTFUNC,
+                  GPIO_AF_5,
+                  GPIO_OUTPUT_PUSHPULL,
+                  GPIO_SPEED_HIGH,
+                  GPIO_PULL_NONE);
+  gpio_pin_config(FRAM_MOSI_PORT,
+                  FRAM_MOSI_PIN,
+                  GPIO_MODE_ALTFUNC,
+                  GPIO_AF_5,
+                  GPIO_OUTPUT_PUSHPULL,
+                  GPIO_SPEED_HIGH,
+                  GPIO_PULL_NONE);
+  gpio_pin_config(FRAM_CS_PORT,
+                  FRAM_CS_PIN,
+                  GPIO_MODE_OUTPUT,
+                  GPIO_AF_NONE,
+                  GPIO_OUTPUT_PUSHPULL,
+                  GPIO_SPEED_HIGH,
+                  GPIO_PULL_NONE);
 }
 
 void gpio_write_pin(GPIO_TypeDef *port, gpio_num_e pin, gpio_pin_state_e pin_state)

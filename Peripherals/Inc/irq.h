@@ -23,6 +23,13 @@
 // USART2 interrupt priority for Modbus operations.
 #define IRQ_USART2_PRIORITY           ((uint32_t) (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 4))
 
+// SPI1 interrupt priority for FRAM operations, critical for data storage/retrieval.
+#define IRQ_SPI1_PRIORITY             ((uint32_t) (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 3))
+
+// DMA stream priorities for SPI1, used for efficient data transfer with FRAM.
+#define IRQ_DMA2_STREAM2_PRIORITY     ((uint32_t) (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 4))
+#define IRQ_DMA2_STREAM3_PRIORITY     ((uint32_t) (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 4))
+
 /**
  * Configures the priority levels for various IRQs in the system by setting the
  * priority levels in the NVIC (Nested Vectored Interrupt Controller) for specific interrupts.

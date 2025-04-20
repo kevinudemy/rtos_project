@@ -8,10 +8,11 @@
 #include "sensors_task.h"
 #include "error_handler_task.h"
 #include "gpio.h"
-// @Todo #include "modbus_data_mgr_task.h"
+#include "modbus_data_mgr_task.h"
 #include "queue.h"
 #include "sys_health_monitor_task.h"
 #include "sgp40_voc_index.h"
+#include "system_events.h"
 
 /**
  * Queue handle for the Sensors Task.
@@ -42,6 +43,13 @@ static BaseType_t sensors_task_has_message(void)
  */
 static void sensors_task(void *params)
 {
+  // Wait for Modbus to be initialized before proceeding
+  xEventGroupWaitBits(system_event_group,
+                      MODBUS_INITIALIZED_BIT,
+                      pdFALSE,
+                      pdTRUE,
+                      portMAX_DELAY);
+
   sensors_msg_t received_msg;
 
   TickType_t xLastWakeTime;
@@ -61,9 +69,10 @@ static void sensors_task(void *params)
   }
 
 
-  // Todo: Get the sampling interval from the Modbus Holding registers and update the xFrequency variable
-  // For now, just set it to 1000 ms
-  xFrequency = pdMS_TO_TICKS(1000);
+  // Get the sampling interval from the Modbus Holding registers and update the xFrequency variable
+  uint16_t sampling_interval;
+  modbus_data_get_holding_register(HOLDING_SENSORS_SAMPLING_INTERVAL, &sampling_interval);
+  xFrequency = pdMS_TO_TICKS(sampling_interval);
 
   // Set the USER LED to ON to signify VOC sensor warmup
   gpio_write_pin(USER_LED_PORT, USER_LED_PIN, GPIO_PIN_SET);
@@ -99,7 +108,7 @@ static void sensors_task(void *params)
       }
     }
 
-    // Todo:  1) Read VOC index, temperature and humidity
+    //        1) Read VOC index, temperature and humidity
     //        2) If sensor read successful;
     //            Check if VOC sensor is warmed up (value not 0), toggle LED, update sensor task data structure, update Modbus Data Manager w/sensor data.
     //        3) Else; let the Error Handler know by sending EVT_SENSOR_READ_FAIL.
@@ -118,7 +127,12 @@ static void sensors_task(void *params)
         sensors_task_data.amb_temp = amb_temp_sens / 1000;
         sensors_task_data.hum = hum_sens / 1000;
 
-        // Todo: Update the Modbus input registers with the sensor data
+        // Update the Modbus input registers with the sensor data
+        sensors_task_status = modbus_data_mgr_send_processing_msg(INPUT_REGS_UPDATE,
+                                                                  &sensors_task_data,
+                                                                  INPUT_SENSOR_VOC_INDEX,
+                                                                  3,
+                                                                  false);
       }
     }
     else

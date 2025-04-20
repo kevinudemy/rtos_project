@@ -33,5 +33,15 @@
 #define MODBUS_RX_PORT      GPIOA
 #define MODBUS_RX_PIN       GPIO_PIN_3
 
+// FRAM (External Memory) Interface
+#define FRAM_SCK_PORT       GPIOB
+#define FRAM_SCK_PIN        GPIO_PIN_3
+#define FRAM_MISO_PORT      GPIOB
+#define FRAM_MISO_PIN       GPIO_PIN_4
+#define FRAM_MOSI_PORT      GPIOB
+#define FRAM_MOSI_PIN       GPIO_PIN_5
+#define FRAM_CS_PORT        GPIOA
+#define FRAM_CS_PIN         GPIO_PIN_10
+
 
 #endif /* INC_GPIO_DEFS_H_ */

@@ -21,4 +21,9 @@ void irq_set_priorities(void)
 
   // Modbus
   NVIC_SetPriority(USART2_IRQn, IRQ_USART2_PRIORITY);
+
+  // FRAM
+  NVIC_SetPriority(SPI1_IRQn, IRQ_SPI1_PRIORITY);
+  NVIC_SetPriority(DMA2_Stream2_IRQn, IRQ_DMA2_STREAM2_PRIORITY);
+  NVIC_SetPriority(DMA2_Stream3_IRQn, IRQ_DMA2_STREAM3_PRIORITY);
 }
