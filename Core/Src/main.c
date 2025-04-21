@@ -8,6 +8,7 @@
 #include "gpio.h"
 #include "irq.h"
 #include "rcc.h"
+#include "tim.h"
 #include "error_handler_task.h"
 #include "fram.h"
 #include "modbus_slave_task.h"
@@ -20,11 +21,20 @@
 // System Events Group Handle
 EventGroupHandle_t system_event_group;
 
+// FreeRTOS Run Time Stats global variable and function prototypes, used for configGENERATE_RUNTIME_STATS
+volatile uint32_t RTOS_RunTimeCounter;
+
 // Startup Task prototype
 static void startup(void);
 
 // FRAM test prototype
 static void fram_test(void);
+
+// Run Time stats configuration prototype
+void configureRunTime(void);
+
+// Run Time stats get counter value prototype
+uint32_t getRunTimeCounter(void);
 
 int main(void)
 {
@@ -154,6 +164,47 @@ static void fram_test(void)
     while (1);
   }
 }
+
+/**
+ * RTOS Run time stats function which sets up the timer
+ * and initializes the run time counter.
+ */
+void configureRunTime(void)
+{
+  tim3_init();
+  RTOS_RunTimeCounter = 0;
+}
+
+/**
+ * RTOS Run time which returns the run time counter value
+ * that is updated in the TIMx interrupt handler.
+ */
+uint32_t getRunTimeCounter(void)
+{
+  return RTOS_RunTimeCounter;
+}
+
+/**
+ * TIM3 interrupt handler for FreeRTOS runtime stats.
+ * Increments the run-time counter and manages the TIM3 overflow event.
+ */
+void TIM3_IRQHandler(void)
+{
+  // Check whether an overflow event has taken place
+  if ((TIM3->SR & TIM_SR_UIF) == TIM_SR_UIF)
+  {
+    // Update counter value for runtime stats
+    RTOS_RunTimeCounter++;
+
+    gpio_toggle_pin(TEST_PORT, TEST_PIN);
+
+    // Clear the UIF to prevent immediate reetrance
+    TIM3->SR &= ~(TIM_SR_UIF);
+  }
+}
+
+
+
 
 
 

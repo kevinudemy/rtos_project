@@ -123,6 +123,9 @@ void error_handler_task_start(void)
   // Create the message queue that can store up to 10 error_id_e's
   error_handler_queue_handle = xQueueCreate((UBaseType_t) 10, sizeof(event_id_e));
 
+  // Add the Error Handler Queue object to the FreeRTOS Queue registery
+  vQueueAddToRegistry(error_handler_queue_handle, "Error Handler Queue");
+
   // If queue creation failed, handle as needed, maybe halt the system here!
   if (error_handler_queue_handle == NULL)
   {

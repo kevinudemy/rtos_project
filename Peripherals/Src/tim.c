@@ -27,6 +27,26 @@ void tim2_init(void)
   TIM2->CR1 |= (TIM_CR1_CEN);
 }
 
+void tim3_init(void)
+{
+  // Enable clock for TIM3
+  RCC_TIM3_CLK_ENABLE();
+
+  // Timer frequency = APB1 TIM3 clock frequency /(1 + PSC) = 90 MHz/(1 + 899) = 100 kHz
+  // Trigger  frequency = 100 kHz / (1 + ARR) = 100 kHz/10 = 10 kHz
+  TIM3->PSC = 899;
+  TIM3->ARR = 9;
+
+  // Enable update interrupts
+  TIM3->DIER |= TIM_DIER_UIE;
+
+  // Enable TIM3 interrupt in NVIC
+  NVIC_EnableIRQ(TIM3_IRQn);
+
+  // Enable the counter
+  TIM3->CR1 |= TIM_CR1_CEN;
+}
+
 void tim5_init(void)
 {
   // Enable clock for TIM5

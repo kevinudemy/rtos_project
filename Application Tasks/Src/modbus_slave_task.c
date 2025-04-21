@@ -224,6 +224,8 @@ void modbus_slave_tasks_start(void)
   modbus_feedback_queue_handle = xQueueCreate(10, sizeof(modbus_data_mgr_feedback_msg_t));
   configASSERT(modbus_feedback_queue_handle != NULL);
 
+  // Add the Modbus Feedback Queue object to the FreeRTOS Queue registery
+  vQueueAddToRegistry(modbus_feedback_queue_handle, "Modbus Slave Feedback Queue");
 
   // Start the Modbus Data Manager Task
   modbus_data_mgr_start();

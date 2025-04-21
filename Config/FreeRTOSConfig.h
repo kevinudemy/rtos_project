@@ -62,8 +62,7 @@
 #define configTICK_RATE_HZ                ((TickType_t)1000)
 #define configMINIMAL_STACK_SIZE          ((uint16_t)128)
 #define configTOTAL_HEAP_SIZE             ((size_t)(15 * 1024))
-#define configMAX_TASK_NAME_LEN           (16)
-#define configUSE_TRACE_FACILITY          1
+#define configMAX_TASK_NAME_LEN           (32)
 #define configUSE_16_BIT_TICKS            0
 #define configIDLE_SHOULD_YIELD           1
 #define configUSE_MUTEXES                 1
@@ -73,10 +72,16 @@
 #define configUSE_MALLOC_FAILED_HOOK      0
 #define configUSE_APPLICATION_TASK_TAG    0
 #define configUSE_COUNTING_SEMAPHORES     1
-#define configRECORD_STACK_HIGH_ADDRESS   1
 
-/* Runtime stats configuration */
-//#define configGENERATE_RUN_TIME_STATS     1
+ /* Run Time stats configuration */
+ #define configRECORD_STACK_HIGH_ADDRESS            1
+ #define configUSE_TRACE_FACILITY                   1
+ #define configUSE_STATS_FORMATTING_FUNCTIONS       1
+ #define configGENERATE_RUN_TIME_STATS              1
+ extern void configureRunTime(void);
+ #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()   configureRunTime()
+ extern uint32_t getRunTimeCounter(void);
+ #define portGET_RUN_TIME_COUNTER_VALUE()           getRunTimeCounter()
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES           0

@@ -163,6 +163,9 @@ void sensors_task_start(void)
   sensors_task_queue_handle = xQueueCreate((UBaseType_t) 10, sizeof(sensors_msg_t));
   configASSERT(sensors_task_queue_handle != NULL);
 
+  // Add the Sensors Task Queue object to the FreeRTOS Queue registery
+  vQueueAddToRegistry(sensors_task_queue_handle, "Sensors Task Queue");
+
   configASSERT(pdPASS == xTaskCreate(sensors_task,
                                      "Sensors Task",
                                      SENSORS_TASK_STACK_SIZE,

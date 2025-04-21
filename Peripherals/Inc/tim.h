@@ -22,6 +22,23 @@
 void tim2_init(void);
 
 /**
+ * Initializes TIM3 for generating periodic interrupts for FreeRTOS runtime statistics
+ * at a frequency of 10 KHz, which is ten times the FreeRTOS tick rate (configTICK_RATE_HZ),
+ * as recommended in UM2609 section 6.2.1.3.
+ *
+ * @Note The actual interrupt handling for runtime statistics is implemented in main.c.
+ *
+ * Configuration steps:
+ * 1. Enable clock for TIM3.
+ * 2. Set prescaler and auto-reload values to define the timer frequency and desired
+ *    interrupt frequency based on the APB1 bus clock frequency.
+ * 3. Enable update interrupts for timing measurements.
+ * 4. Enable TIM3 in NVIC for interrupt handling.
+ * 5. Start the timer to begin generating interrupts.
+ */
+void tim3_init(void);
+
+/**
  * Initializes TIM5 to create microsecond delays for Sensirion sensor communication.
  *
  * Configuration steps:
