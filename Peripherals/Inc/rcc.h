@@ -30,15 +30,15 @@
 #define RCC_MAX_SYSCLK_MHZ      (180)
 
 /**
- * Defines the maximum input frequency that the voltage-controlled oscillator (VCO) can handle
- * within the phase-locked loop (PLL).
+ * Defines the maximum VCO output frequency (MHz) allowed within the PLL.
  *
- * The VCO generates a high-frequency signal which can be used to drive the system clock (SYSCLK)
- * or other on-chip peripherals. The frequency of this signal is influenced by the input signal
- * to the VCO. This defined value is the maximum allowable frequency for this input signal,
- * and it is expressed in megahertz (MHz).
+ * The VCO generates a high-frequency signal that is used to derive SYSCLK
+ * and other clocks through post-dividers (PLLP/PLLQ/etc.).
+ *
+ * This defined value is used as an upper limit for the VCO output frequency
+ * (per the reference manual VCO range), expressed in megahertz (MHz).
  */
-#define RCC_MAX_VCO_INPUT_FREQ  (432)
+#define RCC_MAX_VCO_FREQ        (432)
 
 /**
  * Defines the High Speed Internal (HSI) oscillator frequency in hertz.

@@ -14,15 +14,15 @@
  */
 static uint8_t rcc_get_pllp(uint8_t mcu_freq_mhz)
 {
-  if ((mcu_freq_mhz * 8) <= RCC_MAX_VCO_INPUT_FREQ)
+  if ((mcu_freq_mhz * 8) <= RCC_MAX_VCO_FREQ)
   {
     return 8;
   }
-  else if ((mcu_freq_mhz * 6) <= RCC_MAX_VCO_INPUT_FREQ)
+  else if ((mcu_freq_mhz * 6) <= RCC_MAX_VCO_FREQ)
   {
     return 6;
   }
-  else if ((mcu_freq_mhz * 4) <= RCC_MAX_VCO_INPUT_FREQ)
+  else if ((mcu_freq_mhz * 4) <= RCC_MAX_VCO_FREQ)
   {
     return 4;
   }
