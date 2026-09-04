@@ -150,19 +150,18 @@
  */
 static inline void rcc_lsi_enable(void)
 {
-   RCC->CR |= (RCC_CSR_LSION);
+    RCC->CSR |= RCC_CSR_LSION;
 
-   // Wait until the LSI oscillator is stable
-   while (!(RCC->CR & RCC_CSR_LSIRDY));
+    while (!(RCC->CSR & RCC_CSR_LSIRDY));
 }
 
 /**
  * Disables the LSI oscillator.
  */
- static inline void rcc_lsi_disable(void)
- {
-    RCC->CR &= ~(RCC_CSR_LSION);
- }
+static inline void rcc_lsi_disable(void)
+{
+    RCC->CSR &= ~RCC_CSR_LSION;
+}
 
  /**
   * Enables the external 8 MHz HSE clock provided by the ST-LINK MCO
