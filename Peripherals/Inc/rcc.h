@@ -13,10 +13,10 @@
 #include "mcu.h"
 
 /**
- * Defines the High Speed External (HSE) oscillator frequency in megahertz (MHz).
+ * Defines the external HSE clock frequency in megahertz.
  *
- * On Nucleo boards, the HSE oscillator signal is derived from the ST-LINK's microcontroller
- * oscillator.
+ * On the NUCLEO-F446RE, the 8 MHz HSE clock is supplied by the
+ * onboard ST-LINK MCO output.
  */
 #define RCC_HSE_MHZ		          (8)
 
@@ -49,12 +49,12 @@
 #define RCC_HSI_FREQ            ((uint32_t) 16000000ul)
 
 /**
- * Defines the High Speed External (HSE) oscillator frequency in hertz.
+ * Defines the High Speed External (HSE) clock frequency in hertz.
  *
- * The HSE oscillator relies on an external crystal or ceramic resonator to generate
- * a stable frequency. On Nucleo boards, the HSE signal is derived from the ST-LINK
- * microcontroller's oscillator circuitry. This value should match the actual frequency
- * of the external crystal used in the hardware design.
+ * On the NUCLEO-F446RE, the HSE input is supplied by the 8 MHz MCO
+ * output from the onboard ST-LINK microcontroller. Therefore, the
+ * STM32 HSE is operated in bypass mode rather than using an external
+ * crystal or resonator.
  */
 #define RCC_HSE_FREQ            ((uint32_t)  8000000ul)
 
@@ -164,16 +164,24 @@ static inline void rcc_lsi_enable(void)
     RCC->CR &= ~(RCC_CSR_LSION);
  }
 
-/**
- * Enables the HSE crystal oscillator as the clock source and waits until ready.
- */
-static inline void rcc_hse_enable(void)
-{
-  RCC->CR |= (RCC_CR_HSEON);
+ /**
+  * Enables the external 8 MHz HSE clock provided by the ST-LINK MCO
+  * on the NUCLEO-F446RE and waits until it is ready.
+  */
+ static inline void rcc_hse_enable(void)
+ {
+     /* HSEBYP must be configured while HSE is disabled. */
+     RCC->CR &= ~RCC_CR_HSEON;
 
-  // Wait until the HSE oscillator is stable
-  while (!(RCC->CR & RCC_CR_HSERDY));
-}
+     /* The NUCLEO-F446RE receives an external clock from ST-LINK MCO. */
+     RCC->CR |= RCC_CR_HSEBYP;
+
+     /* Enable HSE. */
+     RCC->CR |= RCC_CR_HSEON;
+
+     /* Wait until the external HSE clock is ready. */
+     while (!(RCC->CR & RCC_CR_HSERDY));
+ }
 
 /**
  * Disables the HSI.
