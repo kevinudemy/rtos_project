@@ -8,84 +8,86 @@
 #include "rcc.h"
 
 /**
- * Sets the IWDG prescaler and IWDG reload value based on the desired timeout and prescaler value.
+ * Configures the IWDG prescaler and reload value for the requested timeout.
+ *
+ * The smallest prescaler capable of representing the requested timeout
+ * is selected automatically.
+ *
  * @param timeout_ms Desired timeout in milliseconds.
- * @param prescaler Desired IWDG prescaler value.
  */
-static void iwdg_config(uint16_t timeout_ms, iwdg_prescaler_e prescaler)
+static void iwdg_config(uint16_t timeout_ms)
 {
-  uint16_t calculated_val;
-  uint16_t prescaler_val;
-  uint16_t max_timeout;
+  iwdg_prescaler_e prescaler = IWDG_PRESCALER_256;
+  uint32_t prescaler_val = 256U;
+  uint32_t required_ticks = 0U;
+  uint32_t reload = 0U;
 
-  // Convert the enumeration value to the actual prescaler divisor and set the max timeout
-  switch (prescaler)
+  /*
+   * Select the smallest prescaler that allows the requested timeout
+   * to fit within the 12-bit watchdog counter.
+   */
+  for (uint32_t candidate = (uint32_t) IWDG_PRESCALER_4;
+       candidate <= (uint32_t) IWDG_PRESCALER_256;
+       candidate++)
   {
-    case IWDG_PRESCALER_4:
-      prescaler_val = 4;
-      max_timeout = 512;
+    uint32_t candidate_prescaler = 4U << candidate;
+
+    uint32_t numerator = (uint32_t) timeout_ms * RCC_LSI_FREQ;
+
+    uint32_t denominator = 1000U * candidate_prescaler;
+
+    /*
+     * Round up so that the configured watchdog timeout is not
+     * shorter than the requested timeout.
+     */
+    required_ticks = (numerator + denominator - 1U) / denominator;
+
+    if (required_ticks <= IWDG_MAX_COUNTER_TICKS)
+    {
+      prescaler = (iwdg_prescaler_e) candidate;
+      prescaler_val = candidate_prescaler;
       break;
-    case IWDG_PRESCALER_8:
-      prescaler_val = 8;
-      max_timeout = 1024;
-      break;
-    case IWDG_PRESCALER_16:
-      prescaler_val = 16;
-      max_timeout = 2048;
-      break;
-    case IWDG_PRESCALER_32:
-      prescaler_val = 32;
-      max_timeout = 4096;
-      break;
-    case IWDG_PRESCALER_64:
-      prescaler_val = 64;
-      max_timeout = 8192;
-      break;
-    case IWDG_PRESCALER_128:
-      prescaler_val = 128;
-      max_timeout = 16384;
-      break;
-    case IWDG_PRESCALER_256:
-      prescaler_val = 256;
-      max_timeout = 32768;
-      break;
-    default:
-      // Handle error or set default prescaler
-      prescaler_val = 32;
-      max_timeout = 4096;
-      break;
+    }
   }
 
-  // Ensure the desired timeout does not exceed the maximum allowed timeout for the chosen prescaler
-  if (timeout_ms > max_timeout)
+  /*
+   * Calculate the watchdog ticks for the selected prescaler.
+   */
   {
-    timeout_ms = max_timeout;
+    uint32_t numerator = (uint32_t) timeout_ms * RCC_LSI_FREQ;
+
+    uint32_t denominator = 1000U * prescaler_val;
+
+    required_ticks = (numerator + denominator - 1U) / denominator;
   }
 
-  // Calculate the raw reload value based on the desired timeout, LSI frequency, and chosen prescaler
-  calculated_val = (timeout_ms * RCC_LSI_FREQ) / (1000 * prescaler_val);
-
-  // Ensure the calculated value does not exceed the maximum reload value (0xFFF)
-  if (calculated_val > 0xFFF)
+  /*
+   * The watchdog period is based on RLR + 1 counter ticks.
+   */
+  if (required_ticks > 0U)
   {
-    calculated_val = 0xFFF;
+    reload = required_ticks - 1U;
   }
 
-  // Set the prescaler
+  /*
+   * Clamp the reload value to the 12-bit hardware limit.
+   */
+  if (reload > IWDG_MAX_RELOAD_VALUE)
+  {
+    reload = IWDG_MAX_RELOAD_VALUE;
+  }
+
   IWDG->PR = prescaler;
-
-  // Set the reload value
-  IWDG->RLR = calculated_val;
+  IWDG->RLR = reload;
 }
 
 void iwdg_init(void)
 {
   rcc_lsi_enable();
   iwdg_enable_write_access();
-  iwdg_config(IWDG_TIMEOUT, IWDG_PRESCALER_32);
+  iwdg_config(IWDG_TIMEOUT);
   iwdg_enable();
 }
-
 
 
 

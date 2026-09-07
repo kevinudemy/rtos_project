@@ -17,6 +17,12 @@
 #define IWDG_KEY_RELOAD           (0x0000AAAAU)
 
 /**
+ * IWDG reload register limits.
+ */
+#define IWDG_MAX_RELOAD_VALUE     (0x0FFFU)
+#define IWDG_MAX_COUNTER_TICKS    (IWDG_MAX_RELOAD_VALUE + 1U)
+
+/**
  * IWDG timeout in ms - adjust as necessary.
  */
 #define IWDG_TIMEOUT              ((uint16_t) 4000)
@@ -60,7 +66,7 @@ static inline void iwdg_reset(void)
 }
 
 /**
- * Initializes the Independent Watchdog for 4 second timeouts.
+ * Initializes the Independent Watchdog for the configured timeout.
  */
 void iwdg_init(void);
 
