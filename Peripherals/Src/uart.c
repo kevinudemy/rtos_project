@@ -130,7 +130,7 @@ static void uart_set_baudrate(USART_TypeDef *uart_instance, uint32_t baudrate)
     uint32_t pclk = uart_get_pclk(uart_instance);
 
     // Check if oversampling is by 8 or 16
-    uint8_t over8 = uart_instance->CR1 & USART_CR1_OVER8;
+    uint8_t over8 = (uart_instance->CR1 & USART_CR1_OVER8) ? 1U : 0U;
     uint32_t oversampling = 8 * (2 - over8);              // This will be 8 if OVER8 is set, 16 otherwise
 
     // Calculate mantissa and fraction parts
