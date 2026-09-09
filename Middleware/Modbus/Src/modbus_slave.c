@@ -82,8 +82,7 @@ error_t modbus_slave_read_holding_regs(modbus_buffers_t *buffers)
     return MODBUS_INVALID_REG_COUNT;
   }
 
-  uint16_t end_addr = start_addr + num_regs - 1;
-  if (end_addr >= HOLDING_MAX)
+  if ((start_addr >= HOLDING_MAX) || (num_regs > (HOLDING_MAX - start_addr)))
   {
     modbus_slave_exception(ILLEGAL_DATA_ADDRESS);
     return MODBUS_INVALID_END_ADDRESS;
@@ -119,8 +118,7 @@ error_t modbus_slave_read_input_regs(modbus_buffers_t *buffers)
     return MODBUS_INVALID_REG_COUNT;
   }
 
-  uint16_t end_addr = start_addr + num_regs - 1;
-  if (end_addr >= INPUT_MAX)
+  if ((start_addr >= INPUT_MAX) || (num_regs > (INPUT_MAX - start_addr)))
   {
     modbus_slave_exception(ILLEGAL_DATA_ADDRESS);
     return MODBUS_INVALID_END_ADDRESS;
@@ -155,8 +153,7 @@ error_t modbus_slave_read_coils(modbus_buffers_t *buffers)
     return MODBUS_INVALID_COIL_COUNT;
   }
 
-  uint16_t end_addr = start_addr + num_coils - 1;
-  if (end_addr >= COIL_MAX)
+  if ((start_addr >= COIL_MAX) || (num_coils > (COIL_MAX - start_addr)))
   {
     modbus_slave_exception(ILLEGAL_DATA_ADDRESS);
     return MODBUS_INVALID_END_ADDRESS;
@@ -213,8 +210,7 @@ error_t modbus_slave_read_discrete_inputs(modbus_buffers_t *buffers)
     return MODBUS_INVALID_DISC_COUNT;
   }
 
-  uint16_t endAddr = start_addr + num_discrete_inputs - 1;
-  if (endAddr >= DISC_MAX)
+  if ((start_addr >= DISC_MAX) || (num_discrete_inputs > (DISC_MAX - start_addr)))
   {
     modbus_slave_exception(ILLEGAL_DATA_ADDRESS);
     return MODBUS_INVALID_END_ADDRESS;
@@ -273,11 +269,10 @@ error_t modbus_slave_write_holding_regs(modbus_buffers_t *buffers,
       return MODBUS_INVALID_REG_COUNT;
   }
 
-  uint16_t end_addr = start_addr + num_regs - 1;
-  if (end_addr >= HOLDING_MAX)                            // constraint based on the number of registers you're supporting
+  if ((start_addr >= HOLDING_MAX) || (num_regs > (HOLDING_MAX - start_addr)))
   {
-      modbus_slave_exception(ILLEGAL_DATA_ADDRESS);
-      return MODBUS_INVALID_END_ADDRESS;
+    modbus_slave_exception(ILLEGAL_DATA_ADDRESS);
+    return MODBUS_INVALID_END_ADDRESS;
   }
 
   int index = DATA_START_IDX + 4;           // Adjusted index based on Modbus write holding register function format
@@ -378,8 +373,7 @@ error_t modbus_slave_write_multi_coils(modbus_buffers_t *buffers, uint16_t *out_
     return MODBUS_INVALID_COIL_COUNT;
   }
 
-  uint16_t end_addr = start_addr + num_coils - 1;
-  if (end_addr >= COIL_MAX)
+  if ((start_addr >= COIL_MAX) || (num_coils > (COIL_MAX - start_addr)))
   {
     modbus_slave_exception(ILLEGAL_DATA_ADDRESS);
     return MODBUS_INVALID_END_ADDRESS;
