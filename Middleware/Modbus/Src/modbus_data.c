@@ -160,7 +160,7 @@ error_t modbus_data_get_coil(uint16_t index, uint8_t *value)
 {
   error_t status = ERR_OK;
 
-  if (index >= (sizeof(modbus_coils) * 8))  // 8 bits per byte
+  if (index >= COIL_MAX)
   {
       status = MODBUS_INVALID_COIL_ADDRESS;
   }
@@ -178,7 +178,7 @@ error_t modbus_data_set_coil(uint16_t index, uint8_t value)
 {
   error_t status = ERR_OK;
 
-  if (index >= (sizeof(modbus_coils) * 8))
+  if (index >= COIL_MAX)
   {
     status = MODBUS_INVALID_COIL_ADDRESS;
   }
@@ -190,6 +190,7 @@ error_t modbus_data_set_coil(uint16_t index, uint8_t value)
   {
     uint8_t byte_index = index / 8;
     uint8_t bit_index = index % 8;
+
     if (value)
     {
       modbus_coils[byte_index] |= (1 << bit_index);  // Set the bit
@@ -207,7 +208,7 @@ error_t modbus_data_set_discrete_input(uint16_t index, uint8_t value)
 {
   error_t status = ERR_OK;
 
-  if (index >= (sizeof(modbus_discrete_inputs) * 8))
+  if (index >= DISC_MAX)
   {
     status = MODBUS_INVALID_DISC_ADDRESS;
   }
@@ -219,6 +220,7 @@ error_t modbus_data_set_discrete_input(uint16_t index, uint8_t value)
   {
     uint8_t byte_index = index / 8;
     uint8_t bit_index = index % 8;
+
     if (value)
     {
       modbus_discrete_inputs[byte_index] |= (1 << bit_index);  // Set the bit
@@ -236,7 +238,7 @@ error_t modbus_data_get_discrete_input(uint16_t index, uint8_t *value)
 {
   error_t status = ERR_OK;
 
-  if (index >= (sizeof(modbus_discrete_inputs) * 8))
+  if (index >= DISC_MAX)
   {
     status = MODBUS_INVALID_DISC_ADDRESS;
   }
