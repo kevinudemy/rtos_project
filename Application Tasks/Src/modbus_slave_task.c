@@ -48,7 +48,12 @@ static error_t handle_modbus_status_and_send_data_update(error_t status,
     if (result == ERR_OK)
     {
       modbus_data_mgr_feedback_msg_t feedback;
-      if (xQueueReceive(modbus_feedback_queue_handle, &feedback, pdMS_TO_TICKS(100)) && feedback.status != ERR_OK)
+      if (xQueueReceive(modbus_feedback_queue_handle, &feedback, pdMS_TO_TICKS(100)) != pdTRUE)
+      {
+        modbus_slave_exception(SLAVE_DEVICE_FAILURE);
+        result = ERR_FAIL;
+      }
+      else if (feedback.status != ERR_OK)
       {
         modbus_slave_exception(SLAVE_DEVICE_FAILURE);
         result = ERR_FAIL;
@@ -123,83 +128,86 @@ static void modbus_slave_task(void *param)
   {
     if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY))
     {
-      uint16_t message_length = modbus_buffers.rx_byte_num - 2;
-      uint16_t received_crc = (modbus_buffers.rx_data[message_length + 1] << 8) |
-                              modbus_buffers.rx_data[message_length];
-
-      uint16_t calculated_crc = modbus_crc16(modbus_buffers.rx_data, message_length);
-
-      if ((received_crc == calculated_crc) && (modbus_buffers.rx_byte_num >= MODBUS_MIN_MSG_LEN))
+      if (modbus_buffers.rx_byte_num >= MODBUS_MIN_MSG_LEN)
       {
-        if (modbus_buffers.rx_data[SLAVE_ID_IDX] == SLAVE_ID)
+        uint16_t message_length = modbus_buffers.rx_byte_num - 2;
+        uint16_t received_crc = (modbus_buffers.rx_data[message_length + 1] << 8) |
+                                modbus_buffers.rx_data[message_length];
+
+        uint16_t calculated_crc = modbus_crc16(modbus_buffers.rx_data, message_length);
+
+        if (received_crc == calculated_crc)
         {
-          error_t lock_status = modbus_sync_lock();
-          if (lock_status == ERR_OK)
+          if (modbus_buffers.rx_data[SLAVE_ID_IDX] == SLAVE_ID)
           {
-            switch (modbus_buffers.rx_data[FUNC_CODE_IDX])
+            error_t lock_status = modbus_sync_lock();
+            if (lock_status == ERR_OK)
             {
-              case READ_HOLDING_REGS:
-                modbus_slave_task_status = modbus_slave_read_holding_regs(&modbus_buffers);
-                break;
+              switch (modbus_buffers.rx_data[FUNC_CODE_IDX])
+              {
+                case READ_HOLDING_REGS:
+                  modbus_slave_task_status = modbus_slave_read_holding_regs(&modbus_buffers);
+                  break;
 
-              case READ_INPUT_REGS:
-                modbus_slave_task_status = modbus_slave_read_input_regs(&modbus_buffers);
-                break;
+                case READ_INPUT_REGS:
+                  modbus_slave_task_status = modbus_slave_read_input_regs(&modbus_buffers);
+                  break;
 
-              case READ_COILS:
-                modbus_slave_task_status = modbus_slave_read_coils(&modbus_buffers);
-                break;
+                case READ_COILS:
+                  modbus_slave_task_status = modbus_slave_read_coils(&modbus_buffers);
+                  break;
 
-              case READ_DISCRETE_INPUTS:
-                modbus_slave_task_status = modbus_slave_read_discrete_inputs(&modbus_buffers);
-                break;
+                case READ_DISCRETE_INPUTS:
+                  modbus_slave_task_status = modbus_slave_read_discrete_inputs(&modbus_buffers);
+                  break;
 
-              case WRITE_SINGLE_REG:
-                modbus_slave_task_status = modbus_slave_write_single_reg(&modbus_buffers, &changed_address);
-                handle_modbus_status_and_send_data_update(modbus_slave_task_status,
-                                                          HOLDING_REGS_UPDATE,
-                                                          changed_address,
-                                                          1);
-                break;
+                case WRITE_SINGLE_REG:
+                  modbus_slave_task_status = modbus_slave_write_single_reg(&modbus_buffers, &changed_address);
+                  handle_modbus_status_and_send_data_update(modbus_slave_task_status,
+                                                            HOLDING_REGS_UPDATE,
+                                                            changed_address,
+                                                            1);
+                  break;
 
-              case WRITE_HOLDING_REGS:
-                modbus_slave_task_status = modbus_slave_write_holding_regs(&modbus_buffers,
-                                                                           &changed_address,
-                                                                           &number_of_regs_changed);
-                handle_modbus_status_and_send_data_update(modbus_slave_task_status,
-                                                          HOLDING_REGS_UPDATE,
-                                                          changed_address,
-                                                          number_of_regs_changed);
-                break;
+                case WRITE_HOLDING_REGS:
+                  modbus_slave_task_status = modbus_slave_write_holding_regs(&modbus_buffers,
+                                                                             &changed_address,
+                                                                             &number_of_regs_changed);
+                  handle_modbus_status_and_send_data_update(modbus_slave_task_status,
+                                                            HOLDING_REGS_UPDATE,
+                                                            changed_address,
+                                                            number_of_regs_changed);
+                  break;
 
-              case WRITE_SINGLE_COIL:
-                modbus_slave_task_status = modbus_slave_write_single_coil(&modbus_buffers, &changed_address);
-                handle_modbus_status_and_send_data_update(modbus_slave_task_status,
-                                                          COIL_COMMAND,
-                                                          changed_address,
-                                                          1);
-                break;
+                case WRITE_SINGLE_COIL:
+                  modbus_slave_task_status = modbus_slave_write_single_coil(&modbus_buffers, &changed_address);
+                  handle_modbus_status_and_send_data_update(modbus_slave_task_status,
+                                                            COIL_COMMAND,
+                                                            changed_address,
+                                                            1);
+                  break;
 
-              case WRITE_MULTI_COILS:
-                modbus_slave_task_status = modbus_slave_write_multi_coils(&modbus_buffers,
-                                                                          &changed_address,
-                                                                          &number_of_regs_changed);
-                handle_modbus_status_and_send_data_update(modbus_slave_task_status,
-                                                          COIL_COMMAND,
-                                                          changed_address,
-                                                          number_of_regs_changed);
-                break;
+                case WRITE_MULTI_COILS:
+                  modbus_slave_task_status = modbus_slave_write_multi_coils(&modbus_buffers,
+                                                                            &changed_address,
+                                                                            &number_of_regs_changed);
+                  handle_modbus_status_and_send_data_update(modbus_slave_task_status,
+                                                            COIL_COMMAND,
+                                                            changed_address,
+                                                            number_of_regs_changed);
+                  break;
 
-              default:
-                modbus_slave_task_status = modbus_slave_exception(ILLEGAL_FUNCTION);
-                break;
+                default:
+                  modbus_slave_task_status = modbus_slave_exception(ILLEGAL_FUNCTION);
+                  break;
+              }
+
+              modbus_sync_unlock();
             }
-
-            modbus_sync_unlock();
-          }
-          else
-          {
-            error_handler_send_msg(EVT_MODBUS_MUTEX_TIMEOUT);
+            else
+            {
+              error_handler_send_msg(EVT_MODBUS_MUTEX_TIMEOUT);
+            }
           }
         }
       }
