@@ -277,6 +277,11 @@ static error_t i2c_start_transmit(I2C_TypeDef *i2c_instance, uint8_t slave_addre
     else  /* Send the slave address */
     {
       status = i2c_send_slave_address(i2c_instance, I2C_7BIT_ADDR_WRITE(slave_address));
+
+      if (status == ERR_OK)
+      {
+        i2c_clear_address_flag(i2c_instance);
+      }
     }
   }
   else
@@ -300,8 +305,9 @@ static error_t i2c_start_receive(I2C_TypeDef *i2c_instance, uint8_t slave_addres
   // Send START only if the I2Cx Semaphore handle is not NULL
   if (i2c_get_semaphore_handle(i2c_instance))
   {
-    // Enable ACK
+    // Restore receive configuration
     i2c_instance->CR1 |= (I2C_CR1_ACK);
+    i2c_instance->CR1 &= ~(I2C_CR1_POS);
 
     /* Send the start condition */
     if (i2c_send_start(i2c_instance) != ERR_OK)
@@ -608,9 +614,6 @@ void I2C1_EV_IRQHandler(void)
   /* Check if address was sent */
   if (I2C1_ADDR_SET)
   {
-    // Clear the address sent flag
-    i2c_clear_address_flag(I2C1);
-
     if (i2c_synch_flags.I2C1_WAIT_ADDR == true)
     {
       i2c_synch_flags.I2C1_WAIT_ADDR = false;
