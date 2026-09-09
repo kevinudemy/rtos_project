@@ -389,26 +389,33 @@ error_t spi_receive_bytes(SPI_TypeDef *spi_instance, uint8_t *rx_buffer, uint16_
 error_t spi_transmit_bytes_dma(spi_instance_e spi_instance_enum, uint8_t *tx_buffer, uint16_t data_length)
 {
   error_t status = ERR_OK;
-  uint8_t *dummy_rx;
+  uint8_t dummy_rx = 0U;
 
   switch (spi_instance_enum)
   {
     case spi1: /* FRAM */
       if (spi_semaphore_handle[spi1])
       {
-        spi_enable(SPI1);
-
-        // Set Tx source, Enable TC, enable stream3 and Tx SPI DMA enable for data transmission
+        // Set Tx source and enable TC for data transmission
         dma_configure_stream(DMA2_Stream3, (uint32_t*)tx_buffer, &(SPI1->DR), data_length, DMA_MINC_ENABLE);
         dma_enable_transfer_complete_interrupt(DMA2_Stream3);
-        dma_enable_stream(DMA2_Stream3);
-        spi_enable_tx_dma(SPI1);
 
-        // Set Rx source, disable TC, enable stream2 and Rx SPI DMA enable for dummy recieves (prevent OVR)
+        // Set Rx source and disable TC for dummy recieves (prevent OVR)
         dma_configure_stream(DMA2_Stream2, (uint32_t*)&dummy_rx, &(SPI1->DR), data_length, DMA_MINC_DISABLE);
         dma_disable_transfer_complete_interrupt(DMA2_Stream2);
-        dma_enable_stream(DMA2_Stream2);
+
+        // RM0390 26.3.11: enable Rx SPI DMA request before enabling the streams
         spi_enable_rx_dma(SPI1);
+
+        // Enable stream2 (Rx) and stream3 (Tx)
+        dma_enable_stream(DMA2_Stream2);
+        dma_enable_stream(DMA2_Stream3);
+
+        // Enable Tx SPI DMA request
+        spi_enable_tx_dma(SPI1);
+
+        // Enable SPI1 last, per RM0390 26.3.11
+        spi_enable(SPI1);
 
         // Non-blocking wait for the SPI transmit to finish (see DMA2 Stream3 ISR)
         if (xSemaphoreTake(spi_get_semaphore_handle(SPI1), SPI_TIMEOUT_TICKS) != pdTRUE)
@@ -462,19 +469,26 @@ error_t spi_receive_bytes_dma(spi_instance_e spi_instance_enum, uint8_t *rx_buff
     case spi1: /* FRAM */
       if (spi_semaphore_handle[spi1])
       {
-        spi_enable(SPI1);
-
-        // Set the Rx source, enable TC, enable stream2 and Rx DMA enable for receiving
+        // Set the Rx source and enable TC for receiving
         dma_configure_stream(DMA2_Stream2, (uint32_t*)rx_buffer, &(SPI1->DR), data_length, DMA_MINC_ENABLE);
         dma_enable_transfer_complete_interrupt(DMA2_Stream2);
-        dma_enable_stream(DMA2_Stream2);
-        spi_enable_rx_dma(SPI1);
 
-        // Set the Tx source, disable TC, enable stream3 and Tx SPI DMA enable for dummy transmission
+        // Set the Tx source and disable TC for dummy transmission
         dma_configure_stream(DMA2_Stream3, (uint32_t*)&dummy_byte, &(SPI1->DR), data_length, DMA_MINC_DISABLE);
         dma_disable_transfer_complete_interrupt(DMA2_Stream3);
+
+        // RM0390 26.3.11: enable Rx SPI DMA request before enabling the streams
+        spi_enable_rx_dma(SPI1);
+
+        // Enable stream2 (Rx) and stream3 (Tx)
+        dma_enable_stream(DMA2_Stream2);
         dma_enable_stream(DMA2_Stream3);
+
+        // Enable Tx SPI DMA request
         spi_enable_tx_dma(SPI1);
+
+        // Enable SPI1 last, per RM0390 26.3.11
+        spi_enable(SPI1);
 
         // Non-blocking wait for the SPI transmit to finish (see DMA2 Stream2 ISR)
         if (xSemaphoreTake(spi_get_semaphore_handle(SPI1), SPI_TIMEOUT_TICKS) != pdTRUE)
