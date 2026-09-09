@@ -558,7 +558,7 @@ error_t i2c_master_receive(I2C_TypeDef *i2c_instance, uint8_t device_address, ui
           rx_count--;
 
           // Read another byte if BTF is set
-          if ((I2C1->SR1 & I2C_SR1_BTF) == I2C_SR1_BTF)
+          if ((i2c_instance->SR1 & I2C_SR1_BTF) == I2C_SR1_BTF)
           {
             rx_buffer[rx_byte_num++] = *((__IO uint8_t *)&(i2c_instance->DR));
             rx_count--;
