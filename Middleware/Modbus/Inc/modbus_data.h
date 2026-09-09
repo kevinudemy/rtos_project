@@ -128,12 +128,10 @@ error_t modbus_data_get_discrete_input(uint16_t index, uint8_t *value);
 error_t modbus_data_init_holding_registers(void);
 
 /**
- * Initialize the Input Registers based on the data in FRAM.
+ * Initializes the Input Registers based on the data in FRAM.
  *
  * Reads from FRAM and updates the corresponding input registers
- * regardless of the value. This ensures that on a first run or post-clear,
- * the registers will be initialized to zero, and for subsequent runs,
- * they will be initialized to the stored historical values.
+ * regardless of the stored values.
  *
  * @return error_t Returns ERR_OK if initialization was successful.
  *                 Returns appropriate error codes otherwise.
