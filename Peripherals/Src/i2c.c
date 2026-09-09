@@ -154,6 +154,9 @@ static error_t i2c_synch_txe_interrupt(I2C_TypeDef *i2c_instance)
   // Wait until TXE is set
   if (xSemaphoreTake(i2c_get_semaphore_handle(i2c_instance), I2C_TIMEOUT_TICKS) != pdTRUE)
   {
+    i2c_synch_flags.I2C1_WAIT_TXE = false;
+    i2c_disable_rx_tx_interrupt(i2c_instance);
+
     status = ERR_TIMEOUT;
   }
 
@@ -176,6 +179,9 @@ static error_t i2c_synch_rxne_interrupt(I2C_TypeDef *i2c_instance)
   // Wait on the Semaphore until the RXNE flag is set
   if (xSemaphoreTake(i2c_get_semaphore_handle(i2c_instance), I2C_TIMEOUT_TICKS) != pdTRUE)
   {
+    i2c_synch_flags.I2C1_WAIT_RXNE = false;
+    i2c_disable_rx_tx_interrupt(i2c_instance);
+
     status = ERR_TIMEOUT;
   }
 
@@ -198,6 +204,9 @@ static error_t i2c_synch_btf_interrupt(I2C_TypeDef *i2c_instance)
   // Wait until the BTF bit is set
   if (xSemaphoreTake(i2c_get_semaphore_handle(i2c_instance), I2C_TIMEOUT_TICKS) != pdTRUE)
   {
+    i2c_synch_flags.I2C1_WAIT_BTF = false;
+    i2c_disable_event_interrupts(i2c_instance);
+
     status = ERR_TIMEOUT;
   }
 
@@ -224,6 +233,9 @@ static error_t i2c_send_start(I2C_TypeDef *i2c_instance)
   // Wait until the SB bit is set
   if (xSemaphoreTake(i2c_get_semaphore_handle(i2c_instance), I2C_TIMEOUT_TICKS) != pdTRUE)
   {
+    i2c_synch_flags.I2C1_WAIT_SB = false;
+    i2c_disable_event_interrupts(i2c_instance);
+
     status = ERR_TIMEOUT;
   }
 
@@ -236,7 +248,8 @@ static error_t i2c_send_start(I2C_TypeDef *i2c_instance)
  * @param slave_address the device address to communicate with.
  * @return ERR_OK if successful, otherwise ERR_TIMEOUT.
  */
-static error_t i2c_send_slave_address(I2C_TypeDef *i2c_instance, uint8_t slave_address)
+static error_t i2c_send_slave_address(I2C_TypeDef *i2c_instance,
+                                      uint8_t slave_address)
 {
   error_t status = ERR_OK;
 
@@ -250,6 +263,9 @@ static error_t i2c_send_slave_address(I2C_TypeDef *i2c_instance, uint8_t slave_a
   // Wait until the ADDR bit is set
   if (xSemaphoreTake(i2c_get_semaphore_handle(i2c_instance), I2C_TIMEOUT_TICKS) != pdTRUE)
   {
+    i2c_synch_flags.I2C1_WAIT_ADDR = false;
+    i2c_disable_event_interrupts(i2c_instance);
+
     status = ERR_TIMEOUT;
   }
 
