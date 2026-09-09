@@ -398,6 +398,11 @@ error_t i2c_master_transmit(I2C_TypeDef *i2c_instance, uint8_t device_address, u
 {
   error_t status = ERR_OK;
 
+  if (data_length == 0U)
+  {
+    return ERR_FAIL;
+  }
+
   if (i2c_wait_for_busy_clear(i2c_instance) == ERR_OK)
   {
     if (i2c_start_transmit(i2c_instance, device_address) == ERR_OK)
@@ -447,6 +452,11 @@ error_t i2c_master_transmit(I2C_TypeDef *i2c_instance, uint8_t device_address, u
 error_t i2c_master_receive(I2C_TypeDef *i2c_instance, uint8_t device_address, uint8_t *rx_buffer, uint16_t data_length)
 {
   error_t status = ERR_OK;
+
+  if (data_length == 0U)
+  {
+    return ERR_FAIL;
+  }
 
   if (i2c_wait_for_busy_clear(i2c_instance) == ERR_OK)
   {
