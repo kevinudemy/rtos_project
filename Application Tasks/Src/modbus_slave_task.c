@@ -22,7 +22,7 @@ QueueHandle_t modbus_feedback_queue_handle = NULL;
 static TaskHandle_t modbus_slave_task_handle;
 
 /**
- * Handles the status of a Modbus operation, unlocking the mutex if successful,
+ * Handles the status of a Modbus operation, unlocking the mutex,
  * notifying the Modbus Data Manager, and waiting for feedback before sending a response.
  * @param status Result of the Modbus operation (success or error).
  * @param msg_type Type of Modbus data update to process.
@@ -38,10 +38,10 @@ static error_t handle_modbus_status_and_send_data_update(error_t status,
 {
   error_t result;
 
+  modbus_sync_unlock();
+
   if (status == ERR_OK)
   {
-    modbus_sync_unlock();
-
     result = modbus_data_mgr_send_processing_msg(msg_type, NULL, address, quantity, true);
 
     // Wait for feedback after sending the data update
@@ -101,14 +101,15 @@ static void modbus_slave_task(void *param)
 
   // Initialize the Holding Registers
   modbus_slave_task_status = modbus_data_init_holding_registers();
+
   if (modbus_slave_task_status != ERR_OK)
   {
     error_handler_send_msg(EVT_FRAM_INIT_FAIL);
   }
 
-
   // Initialize the Input Registers
   modbus_slave_task_status = modbus_data_init_input_registers();
+
   if (modbus_slave_task_status != ERR_OK)
   {
     error_handler_send_msg(EVT_FRAM_INIT_FAIL);
@@ -119,7 +120,6 @@ static void modbus_slave_task(void *param)
 
   // Set Modbus initialized bit for synchronization with the Sensors Task
   xEventGroupSetBits(system_event_group, MODBUS_INITIALIZED_BIT);
-
 
   // Address and quantity to pass to the Modbus Data Manager Task
   uint16_t changed_address, number_of_regs_changed;
@@ -141,8 +141,11 @@ static void modbus_slave_task(void *param)
           if (modbus_buffers.rx_data[SLAVE_ID_IDX] == SLAVE_ID)
           {
             error_t lock_status = modbus_sync_lock();
+
             if (lock_status == ERR_OK)
             {
+              bool mutex_locked = true;
+
               switch (modbus_buffers.rx_data[FUNC_CODE_IDX])
               {
                 case READ_HOLDING_REGS:
@@ -167,6 +170,7 @@ static void modbus_slave_task(void *param)
                                                             HOLDING_REGS_UPDATE,
                                                             changed_address,
                                                             1);
+                  mutex_locked = false;
                   break;
 
                 case WRITE_HOLDING_REGS:
@@ -177,6 +181,7 @@ static void modbus_slave_task(void *param)
                                                             HOLDING_REGS_UPDATE,
                                                             changed_address,
                                                             number_of_regs_changed);
+                  mutex_locked = false;
                   break;
 
                 case WRITE_SINGLE_COIL:
@@ -185,6 +190,7 @@ static void modbus_slave_task(void *param)
                                                             COIL_COMMAND,
                                                             changed_address,
                                                             1);
+                  mutex_locked = false;
                   break;
 
                 case WRITE_MULTI_COILS:
@@ -195,6 +201,7 @@ static void modbus_slave_task(void *param)
                                                             COIL_COMMAND,
                                                             changed_address,
                                                             number_of_regs_changed);
+                  mutex_locked = false;
                   break;
 
                 default:
@@ -202,7 +209,10 @@ static void modbus_slave_task(void *param)
                   break;
               }
 
-              modbus_sync_unlock();
+              if (mutex_locked)
+              {
+                modbus_sync_unlock();
+              }
             }
             else
             {
@@ -246,21 +256,6 @@ void modbus_slave_tasks_start(void)
                            MODBUS_SLAVE_TASK_PRIORITY,
                            &modbus_slave_task_handle) == pdPASS);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
