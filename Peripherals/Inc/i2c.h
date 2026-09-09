@@ -91,7 +91,7 @@ typedef struct
  */
 static inline void i2c_enable(I2C_TypeDef *i2c_instance)
 {
-  if ((I2C1->CR1 & I2C_CR1_PE) != I2C_CR1_PE)
+  if ((i2c_instance->CR1 & I2C_CR1_PE) != I2C_CR1_PE)
   {
     i2c_instance->CR1 |= (I2C_CR1_PE);
   }
