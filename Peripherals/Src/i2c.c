@@ -550,6 +550,7 @@ error_t i2c_master_receive(I2C_TypeDef *i2c_instance, uint8_t device_address, ui
           if (i2c_synch_rxne_interrupt(i2c_instance) != ERR_OK)
           {
             status = ERR_TIMEOUT;
+            break;
           }
 
           // Read the DR
@@ -595,8 +596,6 @@ void I2C1_EV_IRQHandler(void)
 {
   portBASE_TYPE higher_priority_task_woken = pdFALSE;
 
-  bool I2C1_Is_BTF_Cleared = false;
-
   /* Check for start bit */
   if (I2C1_SB_SET)
   {
@@ -639,16 +638,6 @@ void I2C1_EV_IRQHandler(void)
 
         xSemaphoreGiveFromISR(i2c_semaphore_handle[i2c1], &higher_priority_task_woken);
       }
-
-      // Check for TXE with BTF
-      if (I2C1_BTF_SET)
-      {
-        if (!I2C1_Is_BTF_Cleared)
-        {
-          (void)I2C1->DR;
-          I2C1_Is_BTF_Cleared = true;
-        }
-      }
     }
     else if (I2C1_RXNE_SET)
     {
@@ -657,16 +646,6 @@ void I2C1_EV_IRQHandler(void)
         i2c_synch_flags.I2C1_WAIT_RXNE = false;
 
         xSemaphoreGiveFromISR(i2c_semaphore_handle[i2c1], &higher_priority_task_woken);
-      }
-
-      // Check RXNE with BTF
-      if (I2C1_BTF_SET)
-      {
-        if (!I2C1_Is_BTF_Cleared)
-        {
-          (void)I2C1->DR;
-          I2C1_Is_BTF_Cleared = true;
-        }
       }
     }
   }
@@ -682,13 +661,6 @@ void I2C1_EV_IRQHandler(void)
       i2c_disable_event_interrupts(I2C1);
 
       xSemaphoreGiveFromISR(i2c_semaphore_handle[i2c1], &higher_priority_task_woken);
-    }
-    else
-    {
-      if (!I2C1_Is_BTF_Cleared)
-      {
-        (void)I2C1->DR;
-      }
     }
   }
 
