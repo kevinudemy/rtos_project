@@ -255,25 +255,50 @@ error_t modbus_data_init_holding_registers(void)
   error_t status = ERR_OK;
 
   // Try to read the holding register data from FRAM
-  status = fram_read(HOLDING_REGS_FRAM_ADDR, (uint8_t*)&modbus_nvs_holding_reg_updated_data, sizeof(modbus_nvs_holding_registers_t));
+  status = fram_read(HOLDING_REGS_FRAM_ADDR,
+                     (uint8_t*)&modbus_nvs_holding_reg_updated_data,
+                     sizeof(modbus_nvs_holding_registers_t));
 
-  // Check if the read operation was successful and if the data is valid
-  if (status == ERR_OK && modbus_nvs_holding_reg_updated_data.holding_sensors_sampling_interval != 0x0000)  // 0x0000, would indicate uninitialized FRAM data
+  if (status != ERR_OK)
+  {
+    return status;
+  }
+
+  // Check if the stored data is valid
+  if (modbus_nvs_holding_reg_updated_data.holding_sensors_sampling_interval != 0x0000)
   {
     // Update the actual Modbus holding registers
-    modbus_data_set_holding_register(HOLDING_SENSORS_SAMPLING_INTERVAL, modbus_nvs_holding_reg_updated_data.holding_sensors_sampling_interval);
-    modbus_data_set_holding_register(HOLDING_ALARM_MAX_VOC_INDEX, modbus_nvs_holding_reg_updated_data.holding_alarm_max_voc_index);
-    modbus_data_set_holding_register(HOLDING_ALARM_MAX_AMB_TEMP, modbus_nvs_holding_reg_updated_data.holding_alarm_max_amb_temp);
-    modbus_data_set_holding_register(HOLDING_ALARM_MIN_AMB_TEMP, modbus_nvs_holding_reg_updated_data.holding_alarm_min_amb_temp);
-    modbus_data_set_holding_register(HOLDING_ALARM_MAX_HUM, modbus_nvs_holding_reg_updated_data.holding_alarm_max_hum);
+    modbus_data_set_holding_register(HOLDING_SENSORS_SAMPLING_INTERVAL,
+                                     modbus_nvs_holding_reg_updated_data.holding_sensors_sampling_interval);
+
+    modbus_data_set_holding_register(HOLDING_ALARM_MAX_VOC_INDEX,
+                                     modbus_nvs_holding_reg_updated_data.holding_alarm_max_voc_index);
+
+    modbus_data_set_holding_register(HOLDING_ALARM_MAX_AMB_TEMP,
+                                     modbus_nvs_holding_reg_updated_data.holding_alarm_max_amb_temp);
+
+    modbus_data_set_holding_register(HOLDING_ALARM_MIN_AMB_TEMP,
+                                     modbus_nvs_holding_reg_updated_data.holding_alarm_min_amb_temp);
+
+    modbus_data_set_holding_register(HOLDING_ALARM_MAX_HUM,
+                                     modbus_nvs_holding_reg_updated_data.holding_alarm_max_hum);
   }
   else
   {
-    modbus_data_set_holding_register_and_data(HOLDING_SENSORS_SAMPLING_INTERVAL, DEFAULT_SAMPLING_INTERVAL);
-    modbus_data_set_holding_register_and_data(HOLDING_ALARM_MAX_VOC_INDEX, DEFAULT_ALARM_MAX_VOC_INDEX);
-    modbus_data_set_holding_register_and_data(HOLDING_ALARM_MAX_AMB_TEMP, DEFAULT_ALARM_MAX_AMB_TEMP);
-    modbus_data_set_holding_register_and_data(HOLDING_ALARM_MIN_AMB_TEMP, DEFAULT_ALARM_MIN_AMB_TEMP);
-    modbus_data_set_holding_register_and_data(HOLDING_ALARM_MAX_HUM, DEFAULT_ALARM_MAX_HUM);
+    modbus_data_set_holding_register_and_data(HOLDING_SENSORS_SAMPLING_INTERVAL,
+                                              DEFAULT_SAMPLING_INTERVAL);
+
+    modbus_data_set_holding_register_and_data(HOLDING_ALARM_MAX_VOC_INDEX,
+                                              DEFAULT_ALARM_MAX_VOC_INDEX);
+
+    modbus_data_set_holding_register_and_data(HOLDING_ALARM_MAX_AMB_TEMP,
+                                              DEFAULT_ALARM_MAX_AMB_TEMP);
+
+    modbus_data_set_holding_register_and_data(HOLDING_ALARM_MIN_AMB_TEMP,
+                                              DEFAULT_ALARM_MIN_AMB_TEMP);
+
+    modbus_data_set_holding_register_and_data(HOLDING_ALARM_MAX_HUM,
+                                              DEFAULT_ALARM_MAX_HUM);
 
     // Store the initialized structure back to FRAM
     status = fram_write(HOLDING_REGS_FRAM_ADDR,
