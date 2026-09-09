@@ -20,6 +20,10 @@
 // Maximum Modbus RTU message size
 #define MODBUS_MAX_MSG_LEN            (256)
 
+// Fixed-length Modbus RTU request size for FC01-FC06,
+// including slave ID, function code, address/value fields, and CRC.
+#define MODBUS_FIXED_REQUEST_LENGTH    (8)
+
 // Modbus specifications
 #define MODBUS_MAX_NUM_REGS           (125)   // FC03 / FC04 reads
 #define MODBUS_MAX_NUM_COILS          (2000)  // FC01 / FC02 reads

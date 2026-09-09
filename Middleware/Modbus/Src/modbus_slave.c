@@ -73,6 +73,12 @@ error_t modbus_slave_read_holding_regs(modbus_buffers_t *buffers)
 {
   const uint8_t BYTE_MULTIPLIER = 2;  // For Modbus holding registers
 
+  if (buffers->rx_byte_num != MODBUS_FIXED_REQUEST_LENGTH)
+  {
+    modbus_slave_exception(ILLEGAL_DATA_VALUE);
+    return ERR_FAIL;
+  }
+
   uint16_t start_addr = ((buffers->rx_data[START_ADDR_HIGH_IDX] << 8) | buffers->rx_data[START_ADDR_LOW_IDX]);
   uint16_t num_regs = ((buffers->rx_data[NUM_REGS_HIGH_IDX] << 8) | buffers->rx_data[NUM_REGS_LOW_IDX]);
 
@@ -109,6 +115,12 @@ error_t modbus_slave_read_input_regs(modbus_buffers_t *buffers)
   const uint8_t BITS_PER_BYTE = 8;
   const uint8_t BYTE_MULTIPLIER = 2;  // For Modbus input registers
 
+  if (buffers->rx_byte_num != MODBUS_FIXED_REQUEST_LENGTH)
+  {
+    modbus_slave_exception(ILLEGAL_DATA_VALUE);
+    return ERR_FAIL;
+  }
+
   uint16_t start_addr = ((buffers->rx_data[START_ADDR_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[START_ADDR_LOW_IDX]);
   uint16_t num_regs = ((buffers->rx_data[NUM_REGS_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[NUM_REGS_LOW_IDX]);
 
@@ -143,6 +155,12 @@ error_t modbus_slave_read_input_regs(modbus_buffers_t *buffers)
 error_t modbus_slave_read_coils(modbus_buffers_t *buffers)
 {
   const uint8_t BITS_PER_BYTE = 8;
+
+  if (buffers->rx_byte_num != MODBUS_FIXED_REQUEST_LENGTH)
+  {
+    modbus_slave_exception(ILLEGAL_DATA_VALUE);
+    return ERR_FAIL;
+  }
 
   uint16_t start_addr = ((buffers->rx_data[START_ADDR_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[START_ADDR_LOW_IDX]);
   uint16_t num_coils = ((buffers->rx_data[NUM_REGS_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[NUM_REGS_LOW_IDX]);
@@ -200,6 +218,12 @@ error_t modbus_slave_read_coils(modbus_buffers_t *buffers)
 error_t modbus_slave_read_discrete_inputs(modbus_buffers_t *buffers)
 {
   const uint8_t BITS_PER_BYTE = 8;
+
+  if (buffers->rx_byte_num != MODBUS_FIXED_REQUEST_LENGTH)
+  {
+    modbus_slave_exception(ILLEGAL_DATA_VALUE);
+    return ERR_FAIL;
+  }
 
   uint16_t start_addr = ((buffers->rx_data[START_ADDR_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[START_ADDR_LOW_IDX]);
   uint16_t num_discrete_inputs = ((buffers->rx_data[NUM_REGS_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[NUM_REGS_LOW_IDX]);
@@ -315,6 +339,12 @@ error_t modbus_slave_write_single_reg(modbus_buffers_t *buffers, uint16_t *out_r
 {
   const uint8_t BITS_PER_BYTE = 8;
 
+  if (buffers->rx_byte_num != MODBUS_FIXED_REQUEST_LENGTH)
+  {
+    modbus_slave_exception(ILLEGAL_DATA_VALUE);
+    return ERR_FAIL;
+  }
+
   uint16_t reg_addr = (buffers->rx_data[START_ADDR_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[START_ADDR_LOW_IDX];
 
   if (reg_addr >= HOLDING_MAX)  // Check for valid register address
@@ -338,6 +368,12 @@ error_t modbus_slave_write_single_reg(modbus_buffers_t *buffers, uint16_t *out_r
 error_t modbus_slave_write_single_coil(modbus_buffers_t *buffers, uint16_t *out_coil_addr)
 {
   const uint8_t BITS_PER_BYTE = 8;
+
+  if (buffers->rx_byte_num != MODBUS_FIXED_REQUEST_LENGTH)
+  {
+    modbus_slave_exception(ILLEGAL_DATA_VALUE);
+    return ERR_FAIL;
+  }
 
   uint16_t coil_addr = (buffers->rx_data[START_ADDR_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[START_ADDR_LOW_IDX];
 
