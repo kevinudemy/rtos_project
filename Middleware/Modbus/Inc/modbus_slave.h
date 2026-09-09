@@ -51,14 +51,17 @@ typedef enum
 {
   SLAVE_ID_IDX = 0,
   FUNC_CODE_IDX = 1,
+
   // Used for response messages
   BYTE_COUNT_IDX = 2,
   DATA_START_IDX = 3,
+
   // Used for request messages
   START_ADDR_HIGH_IDX = 2,
   START_ADDR_LOW_IDX = 3,
   NUM_REGS_HIGH_IDX = 4,
   NUM_REGS_LOW_IDX = 5,
+  REQ_BYTE_COUNT_IDX = 6,
   COIL_DATA_START_IDX = 7
 } modbus_message_index_e;
 

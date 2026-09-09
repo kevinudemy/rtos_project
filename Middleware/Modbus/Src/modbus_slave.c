@@ -259,14 +259,24 @@ error_t modbus_slave_write_holding_regs(modbus_buffers_t *buffers,
                                         uint16_t *out_num_regs)
 {
   const uint8_t BITS_PER_BYTE = 8;
+  const uint8_t BYTES_PER_REG = 2;
 
   uint16_t start_addr = ((buffers->rx_data[START_ADDR_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[START_ADDR_LOW_IDX]);
   uint16_t num_regs = ((buffers->rx_data[NUM_REGS_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[NUM_REGS_LOW_IDX]);
 
-  if ((num_regs < 1) || (num_regs > MODBUS_MAX_NUM_REGS)) // constraint as per the Modbus specification
+  if ((num_regs < 1) || (num_regs > MODBUS_MAX_NUM_REGS))
   {
-      modbus_slave_exception(ILLEGAL_DATA_VALUE);
-      return MODBUS_INVALID_REG_COUNT;
+    modbus_slave_exception(ILLEGAL_DATA_VALUE);
+    return MODBUS_INVALID_REG_COUNT;
+  }
+
+  uint8_t expected_byte_count = num_regs * BYTES_PER_REG;
+  uint16_t expected_length = 9U + expected_byte_count;
+
+  if ((buffers->rx_data[REQ_BYTE_COUNT_IDX] != expected_byte_count) || (buffers->rx_byte_num != expected_length))
+  {
+    modbus_slave_exception(ILLEGAL_DATA_VALUE);
+    return MODBUS_INVALID_REG_COUNT;
   }
 
   if ((start_addr >= HOLDING_MAX) || (num_regs > (HOLDING_MAX - start_addr)))
@@ -275,21 +285,25 @@ error_t modbus_slave_write_holding_regs(modbus_buffers_t *buffers,
     return MODBUS_INVALID_END_ADDRESS;
   }
 
-  int index = DATA_START_IDX + 4;           // Adjusted index based on Modbus write holding register function format
-  uint16_t initial_start_addr = start_addr; // store the initial start address before writing
+  int index = COIL_DATA_START_IDX;
+
+  uint16_t initial_start_addr = start_addr;
+
   for (int i = 0; i < num_regs; i++)
   {
-      modbus_holding_regs[start_addr] = (buffers->rx_data[index] << 8) | buffers->rx_data[index + 1];
-      start_addr++;
-      index += 2;
+    modbus_holding_regs[start_addr] = (buffers->rx_data[index] << BITS_PER_BYTE) | buffers->rx_data[index + 1];
+
+    start_addr++;
+    index += 2;
   }
 
   // Update the out params so that the task knows what's changed
-  if (out_start_addr) // NULL check
+  if (out_start_addr)
   {
-    *out_start_addr = initial_start_addr;  // use the initial start address
+    *out_start_addr = initial_start_addr;
   }
-  if (out_num_regs)   // NULL check
+
+  if (out_num_regs)
   {
     *out_num_regs = num_regs;
   }
@@ -360,14 +374,25 @@ error_t modbus_slave_write_single_coil(modbus_buffers_t *buffers, uint16_t *out_
   return ERR_OK;
 }
 
-error_t modbus_slave_write_multi_coils(modbus_buffers_t *buffers, uint16_t *out_start_addr, uint16_t *out_num_coils)
+error_t modbus_slave_write_multi_coils(modbus_buffers_t *buffers,
+                                       uint16_t *out_start_addr,
+                                       uint16_t *out_num_coils)
 {
   const uint8_t BITS_PER_BYTE = 8;
 
   uint16_t start_addr = (buffers->rx_data[START_ADDR_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[START_ADDR_LOW_IDX];
   uint16_t num_coils = (buffers->rx_data[NUM_REGS_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[NUM_REGS_LOW_IDX];
 
-  if (num_coils < 1 || num_coils > MODBUS_MAX_NUM_COILS)  // As per the Modbus Specification
+  if ((num_coils < 1) || (num_coils > MODBUS_MAX_NUM_COILS))
+  {
+    modbus_slave_exception(ILLEGAL_DATA_VALUE);
+    return MODBUS_INVALID_COIL_COUNT;
+  }
+
+  uint8_t expected_byte_count = (num_coils + (BITS_PER_BYTE - 1U)) / BITS_PER_BYTE;
+  uint16_t expected_length = 9U + expected_byte_count;
+
+  if ((buffers->rx_data[REQ_BYTE_COUNT_IDX] != expected_byte_count) || (buffers->rx_byte_num != expected_length))
   {
     modbus_slave_exception(ILLEGAL_DATA_VALUE);
     return MODBUS_INVALID_COIL_COUNT;
@@ -404,6 +429,7 @@ error_t modbus_slave_write_multi_coils(modbus_buffers_t *buffers, uint16_t *out_
       index_position = 0;
       index++;
     }
+
     if (bit_position > 7)
     {
       bit_position = 0;
@@ -412,11 +438,12 @@ error_t modbus_slave_write_multi_coils(modbus_buffers_t *buffers, uint16_t *out_
   }
 
   // Update the out parameters
-  if (out_start_addr) // NULL check
+  if (out_start_addr)
   {
     *out_start_addr = start_addr;
   }
-  if (out_num_coils) // NULL check
+
+  if (out_num_coils)
   {
     *out_num_coils = num_coils;
   }
