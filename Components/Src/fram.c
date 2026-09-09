@@ -57,11 +57,9 @@ error_t fram_write(uint16_t address, uint8_t *write_buffer, uint16_t data_length
     tx_data[1] = (uint8_t)(address >> 8);
     tx_data[2] = (uint8_t)(address);
 
-    if (spi_transmit_bytes(SPI1, tx_data, sizeof(tx_data)) != ERR_OK)
-    {
-      status = ERR_FAIL;
-    }
-    else
+    status = spi_transmit_bytes(SPI1, tx_data, sizeof(tx_data));
+
+    if (status == ERR_OK)
     {
       // Proceed with writing the data using DMA
       status = spi_transmit_bytes_dma(spi1, write_buffer, data_length);
@@ -69,7 +67,10 @@ error_t fram_write(uint16_t address, uint8_t *write_buffer, uint16_t data_length
 
     FRAM_CS_HIGH();
 
-    status = fram_write_disable();
+    if (fram_write_disable() != ERR_OK && status == ERR_OK)
+    {
+      status = ERR_FAIL;
+    }
   }
 
   return status;
