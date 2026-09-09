@@ -164,7 +164,7 @@ void ADC_IRQHandler(void)
     mcu_temp_ok = false;
   }
 
-  // Check if the End of Converstion flag is set
+  // Check if the End of Conversion flag is set
   if (ADC1->SR & ADC_SR_EOC)
   {
     // Toggle GPIO pin (used for debugging and signaling purposes)
