@@ -151,7 +151,7 @@ static inline void spi_clear_flag_ovr(SPI_TypeDef *spi_instance)
   __IO uint32_t tmpreg;
   tmpreg = spi_instance->DR;
   (void) tmpreg;
-  tmpreg = spi_instance->DR;
+  tmpreg = spi_instance->SR;
   (void) tmpreg;
 }
 
