@@ -264,7 +264,7 @@ error_t modbus_slave_write_holding_regs(modbus_buffers_t *buffers,
   uint16_t start_addr = ((buffers->rx_data[START_ADDR_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[START_ADDR_LOW_IDX]);
   uint16_t num_regs = ((buffers->rx_data[NUM_REGS_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[NUM_REGS_LOW_IDX]);
 
-  if ((num_regs < 1) || (num_regs > MODBUS_MAX_NUM_REGS))
+  if ((num_regs < 1) || (num_regs > MODBUS_MAX_WRITE_NUM_REGS))
   {
     modbus_slave_exception(ILLEGAL_DATA_VALUE);
     return MODBUS_INVALID_REG_COUNT;
@@ -383,7 +383,7 @@ error_t modbus_slave_write_multi_coils(modbus_buffers_t *buffers,
   uint16_t start_addr = (buffers->rx_data[START_ADDR_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[START_ADDR_LOW_IDX];
   uint16_t num_coils = (buffers->rx_data[NUM_REGS_HIGH_IDX] << BITS_PER_BYTE) | buffers->rx_data[NUM_REGS_LOW_IDX];
 
-  if ((num_coils < 1) || (num_coils > MODBUS_MAX_NUM_COILS))
+  if ((num_coils < 1) || (num_coils > MODBUS_MAX_WRITE_NUM_COILS))
   {
     modbus_slave_exception(ILLEGAL_DATA_VALUE);
     return MODBUS_INVALID_COIL_COUNT;

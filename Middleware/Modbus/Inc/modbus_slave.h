@@ -12,26 +12,29 @@
 #include "modbus_crc.h"
 
 // Slave ID used
-#define SLAVE_ID                (7)
+#define SLAVE_ID                      (7)
 
 // Minimum Modbus RTU message length
-#define MODBUS_MIN_MSG_LEN      (4)
+#define MODBUS_MIN_MSG_LEN            (4)
 
 // Maximum Modbus RTU message size
-#define MODBUS_MAX_MSG_LEN      (256)
+#define MODBUS_MAX_MSG_LEN            (256)
 
 // Modbus specifications
-#define MODBUS_MAX_NUM_REGS     (125)
-#define MODBUS_MAX_NUM_COILS    (2000)
+#define MODBUS_MAX_NUM_REGS           (125)   // FC03 / FC04 reads
+#define MODBUS_MAX_NUM_COILS          (2000)  // FC01 / FC02 reads
+
+#define MODBUS_MAX_WRITE_NUM_REGS     (123)   // FC16 write multiple registers
+#define MODBUS_MAX_WRITE_NUM_COILS    (1968)  // FC15 write multiple coils
 
 // Exception codes
-#define ILLEGAL_FUNCTION        (0x01)
-#define ILLEGAL_DATA_ADDRESS    (0x02)
-#define ILLEGAL_DATA_VALUE      (0x03)
-#define SLAVE_DEVICE_FAILURE    (0x04)
+#define ILLEGAL_FUNCTION              (0x01)
+#define ILLEGAL_DATA_ADDRESS          (0x02)
+#define ILLEGAL_DATA_VALUE            (0x03)
+#define SLAVE_DEVICE_FAILURE          (0x04)
 
 // Reponse length
-#define MODBUS_RESPONSE_LENGTH  (6)
+#define MODBUS_RESPONSE_LENGTH        (6)
 
 /**
  * Modbus Slave receive and transmit buffers.
