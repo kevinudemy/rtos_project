@@ -62,6 +62,7 @@ static void i2c_set_pclk_freq(I2C_TypeDef *i2c_instance)
     uint32_t i2c_apb1_clock_mhz = (rcc_get_pclk1_freq() / 1000000);
 
     // Set the PCLK1 frequency in MHz to the FREQ field of the CR2 register
+    i2c_instance->CR2 &= ~(I2C_CR2_FREQ_Msk);
     i2c_instance->CR2 |= (i2c_apb1_clock_mhz << I2C_CR2_FREQ_Pos);
 }
 
