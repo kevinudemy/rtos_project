@@ -19,7 +19,7 @@ i2c_synch_flags_t i2c_synch_flags = {0};
 /**
  * Gets the Semaphore handle for an I2C instance.
  * @param i2c_instance I2C instance.
- * @return i2c_event_group_handle, otherwise NULL
+ * @return i2c_semaphore_handle, otherwise NULL
  */
 static SemaphoreHandle_t i2c_get_semaphore_handle(I2C_TypeDef *i2c_instance)
 {
@@ -141,7 +141,7 @@ static error_t i2c_wait_for_busy_clear(I2C_TypeDef *i2c_instance)
 
 /**
  * Enables the event interrupt and pends until the TXE flag is set.
- * @param i2c_instance I2C intance.
+ * @param i2c_instance I2C instance.
  * @return ERR_OK if successful, otherwise ERR_TIMEOUT.
  */
 static error_t i2c_synch_txe_interrupt(I2C_TypeDef *i2c_instance)
@@ -166,7 +166,7 @@ static error_t i2c_synch_txe_interrupt(I2C_TypeDef *i2c_instance)
 
 /**
  * Enables the event interrupt and pends until the RXNE flag is set.
- * @param i2c_instance I2C intance.
+ * @param i2c_instance I2C instance.
  * @return ERR_OK if successful, otherwise ERR_TIMEOUT.
  */
 static error_t i2c_synch_rxne_interrupt(I2C_TypeDef *i2c_instance)
@@ -191,7 +191,7 @@ static error_t i2c_synch_rxne_interrupt(I2C_TypeDef *i2c_instance)
 
 /**
  * Enables the event interrupt and pends until the BTF flag is set.
- * @param i2c_instance I2C intance.
+ * @param i2c_instance I2C instance.
  * @return ERR_OK if successful, otherwise ERR_TIMEOUT.
  */
 static error_t i2c_synch_btf_interrupt(I2C_TypeDef *i2c_instance)
@@ -216,7 +216,7 @@ static error_t i2c_synch_btf_interrupt(I2C_TypeDef *i2c_instance)
 
 /**
  * Sends the start condition after enabling the event interrupt and pends on the semaphore.
- * @param i2c_instance I2C intance.
+ * @param i2c_instance I2C instance.
  * @return ERR_OK if successful, otherwise ERR_TIMEOUT.
  */
 static error_t i2c_send_start(I2C_TypeDef *i2c_instance)
@@ -245,7 +245,7 @@ static error_t i2c_send_start(I2C_TypeDef *i2c_instance)
 
 /**
  * Sends the slave address and pends on the semaphore until the ADDR bit is set.
- * @param i2c_instance I2C intance.
+ * @param i2c_instance I2C instance.
  * @param slave_address the device address to communicate with.
  * @return ERR_OK if successful, otherwise ERR_TIMEOUT.
  */
@@ -275,7 +275,7 @@ static error_t i2c_send_slave_address(I2C_TypeDef *i2c_instance,
 
 /**
  * Sends the I2C start condition and slave address.
- * @param i2c_instance I2C intance.
+ * @param i2c_instance I2C instance.
  * @param slave_address the device address to communicate with.
  * @return ERR_OK if successful, otherwise ERR_TIMEOUT.
  */
@@ -311,7 +311,7 @@ static error_t i2c_start_transmit(I2C_TypeDef *i2c_instance, uint8_t slave_addre
 
 /**
  * Enables acknowledge and sends the start condition and slave address.
- * @param i2c_instance I2C intance.
+ * @param i2c_instance I2C instance.
  * @param slave_address the device address to communicate with.
  * @return ERR_OK if successful, otherwise ERR_TIMEOUT.
  */
@@ -503,7 +503,7 @@ error_t i2c_master_receive(I2C_TypeDef *i2c_instance, uint8_t device_address, ui
       {
         if (rx_count <= 3U)
         {
-          if (rx_count == 1U)  /* Recieve one byte */
+          if (rx_count == 1U)  /* Receive one byte */
           {
             // Wait for RXNE
             if (i2c_synch_rxne_interrupt(i2c_instance) != ERR_OK)
@@ -516,7 +516,7 @@ error_t i2c_master_receive(I2C_TypeDef *i2c_instance, uint8_t device_address, ui
             rx_buffer[rx_byte_num++] = *((__IO uint8_t *)&(i2c_instance->DR));
             rx_count--;
           }
-          else if (rx_count == 2U) /* Recieve two bytes */
+          else if (rx_count == 2U) /* Receive two bytes */
           {
             // Wait for BTF
             if (i2c_synch_btf_interrupt(i2c_instance) != ERR_OK)
