@@ -707,6 +707,10 @@ void I2C1_ER_IRQHandler(void)
   /* Check for AF */
   if (I2C1_AF_ERROR)
   {
+    // Generate STOP condition
+    I2C1->CR1 |= I2C_CR1_STOP;
+
+    // Clear acknowledge failure flag
     I2C1->SR1 &= ~(I2C_SR1_AF);
   }
 
