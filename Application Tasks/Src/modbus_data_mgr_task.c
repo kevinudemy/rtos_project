@@ -77,11 +77,11 @@ static error_t process_modified_coils(modbus_data_mgr_processing_msg_t data_upda
  * @param data_update_msg Modbus data update details.
  * @return ERR_OK if successful, error code otherwise.
  */
-static error_t process_modified_holding_registers(modbus_data_mgr_processing_msg_t data_udpate_msg)
+static error_t process_modified_holding_registers(modbus_data_mgr_processing_msg_t data_update_msg)
 {
   error_t status = ERR_OK;
-  uint16_t start_address = data_udpate_msg.address;
-  uint16_t num_regs = data_udpate_msg.quantity;
+  uint16_t start_address = data_update_msg.address;
+  uint16_t num_regs = data_update_msg.quantity;
 
   for (uint16_t i = 0; i < num_regs && status == ERR_OK; i++)
   {
@@ -322,19 +322,26 @@ static error_t handle_hum_update(uint16_t hum_value)
  * - Iterates through updated input registers.
  * - Updates values and takes action based on the specific register.
  *
- * @param data_udpate_msg The Modbus data update message.
+ * @param data_update_msg The Modbus data update message.
  * @return ERR_OK if all registers were processed successfully, appropriate error code otherwise.
  */
-static error_t process_input_registers_update(modbus_data_mgr_processing_msg_t data_udpate_msg)
+static error_t process_input_registers_update(modbus_data_mgr_processing_msg_t data_update_msg)
 {
   error_t status = ERR_OK;
-  uint16_t start_address = data_udpate_msg.address;
-  uint16_t num_regs = data_udpate_msg.quantity;
+  uint16_t start_address = data_update_msg.address;
+  uint16_t num_regs = data_update_msg.quantity;
+
+  uint16_t sensor_data[] =
+  {
+    data_update_msg.data.voc_index,
+    data_update_msg.data.amb_temp,
+    data_update_msg.data.hum
+  };
 
   for (uint16_t i = 0; i < num_regs && status == ERR_OK; i++)
   {
     uint16_t current_reg_address = start_address + i;
-    uint16_t register_value = *((uint16_t*)data_udpate_msg.data + i);
+    uint16_t register_value = sensor_data[i];
 
     status = modbus_data_set_input_register(current_reg_address, register_value);
 
@@ -433,16 +440,21 @@ static void modbus_data_mgr_task(void *param)
 }
 
 error_t modbus_data_mgr_send_processing_msg(modbus_data_mgr_msg_e msg_type,
-                                            void *data,
+                                            const sensors_task_data_t *data,
                                             uint16_t addr,
                                             uint16_t qty,
                                             bool req_feedback)
 {
   error_t status = ERR_OK;
 
-  modbus_data_mgr_processing_msg_t data_update_msg;
+  modbus_data_mgr_processing_msg_t data_update_msg = {0};
   data_update_msg.msg_type = msg_type;
-  data_update_msg.data = data;
+
+  if (data != NULL)
+  {
+    data_update_msg.data = *data;
+  }
+
   data_update_msg.address = addr;
   data_update_msg.quantity = qty;
   data_update_msg.requires_feedback = req_feedback;
@@ -472,8 +484,7 @@ error_t modbus_data_mgr_send_feedback_msg(error_t feedback_status)
 
 void modbus_data_mgr_start(void)
 {
-  modbus_data_mgr_queue_handle = xQueueCreate((UBaseType_t) 10,
-                                              sizeof(modbus_data_mgr_processing_msg_t));
+  modbus_data_mgr_queue_handle = xQueueCreate((UBaseType_t) 10, sizeof(modbus_data_mgr_processing_msg_t));
   configASSERT(modbus_data_mgr_queue_handle != NULL);
 
   // Add the Modbus Data Manager Queue object to the FreeRTOS Queue registery

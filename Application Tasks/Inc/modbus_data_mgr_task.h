@@ -11,6 +11,7 @@
 #include "error.h"
 #include "FreeRTOSTasks.h"
 #include "modbus_data.h"
+#include "sensors_task.h"
 
 /**
  * Modbus Data Manager message IDs enum.
@@ -28,7 +29,7 @@ typedef enum
 typedef struct
 {
   modbus_data_mgr_msg_e msg_type;
-  void *data;
+  sensors_task_data_t data;
   uint16_t address;
   uint16_t quantity;
   bool requires_feedback;
@@ -46,7 +47,7 @@ typedef struct
  * Enqueues a Modbus data message for processing by the Modbus Data Manager task.
  *
  * @param msg_type Message ID from the modbus_data_mgr_msg_e enum indicating the type of update.
- * @param data Pointer to data associated with the message. Can be NULL.
+ * @param data Pointer to sensor data associated with the message. Can be NULL.
  * @param addr The starting address for the Modbus data operation.
  * @param qty The number of registers or coils involved in the operation.
  * @param req_feedback Indicates whether feedback is required from the Modbus Data Manager.
@@ -54,7 +55,7 @@ typedef struct
  * @return ERR_OK if the message was successfully enqueued to the queue, otherwise ERR_FAIL.
  */
 error_t modbus_data_mgr_send_processing_msg(modbus_data_mgr_msg_e msg_type,
-                                            void *data,
+                                            const sensors_task_data_t *data,
                                             uint16_t addr,
                                             uint16_t qty,
                                             bool req_feedback);
