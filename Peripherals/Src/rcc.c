@@ -89,14 +89,14 @@ void rcc_init(void)
 
   rcc_ahb_set_prescaler(RCC_SYSCLK_DIV_1);
 
+  rcc_apb1_set_prescaler(RCC_APB1_DIV_4);
+  rcc_apb2_set_prescaler(RCC_APB2_DIV_4);
+
   rcc_sysclk_set_source(RCC_SYSCLK_SRC_PLLP);
 
   while (RCC_CFGR_SWS_PLL != rcc_sysclk_get_source());
 
   rcc_hsi_disable();
-
-  rcc_apb1_set_prescaler(RCC_APB1_DIV_4);
-  rcc_apb2_set_prescaler(RCC_APB2_DIV_4);
 }
 
 uint32_t rcc_get_sysclk_freq(void)
