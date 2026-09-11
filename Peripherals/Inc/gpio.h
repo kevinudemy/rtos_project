@@ -156,15 +156,14 @@ typedef enum
 /**
  * Initializes the GPIO configuration for various components of the system.
  * This function sets up GPIO pins for different functionalities including
- * input, output, alternate functions, and analog modes. It includes configurations
- * for the user LED, user button, test pin, internal temperature sensor, FRAM interface,
+ * input, output, alternate functions, and analog modes.
+ * It includes configurations for the user LED, user button, test pin, FRAM interface,
  * Sensirion temperature & humidity sensor, and Modbus interface.
  *
  * - Enables clocks for all GPIO ports and the SYSCFG module.
  * - Configures the user LED pin as an output.
  * - Sets the user button pin as an input.
  * - Initializes a test pin for output.
- * - Configures the internal temperature sensor pin in analog mode.
  * - Sets up GPIO pins for the FRAM interface with SPI alternate functions.
  * - Configures GPIO pins for the Sensirion sensor with I2C alternate functions.
  * - Initializes GPIO pins for Modbus communication with appropriate alternate functions.
@@ -175,8 +174,8 @@ void gpio_init(void);
  * Sets or resets the state of a specified GPIO pin in a specified GPIO port.
  * Used to turn on or off a pin if it's configured as an output.
  *
- * @Note: This function uses GPIOx_BSRR register to allow atomic read/modify accesses.
- * In this way, there is no risk of an IRQ occurring between the read and the modify access.
+ * @Note: This function uses the GPIOx_BSRR register to allow atomic set/reset operations
+ * without requiring a read-modify-write access.
  *
  * @param port Pointer to the GPIOx port where the pin is located.
  * @param pin The number of the pin in the specified port to be set or reset.
