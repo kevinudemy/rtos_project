@@ -198,7 +198,7 @@ void TIM3_IRQHandler(void)
 
     gpio_toggle_pin(TEST_PORT, TEST_PIN);
 
-    // Clear the UIF to prevent immediate reetrance
+    // Clear the UIF to prevent immediate reentry
     TIM3->SR &= ~(TIM_SR_UIF);
   }
 }
