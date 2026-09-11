@@ -24,7 +24,7 @@ static void adc1_config(void)
   ADC1->CR1 = 0;
   ADC1->CR2 = 0;
 
-  // Enalbe the EOC interrupt
+  // Enable the EOC interrupt
   ADC1->CR1 |= (ADC_CR1_EOCIE);
 
   // Configure trigger detection on the rising edge and timer 2 external trigger
@@ -66,7 +66,7 @@ void adc_awd_init(ADC_TypeDef *ADCx, adc_channels_e channel, uint16_t high_thres
   ADCx->HTR = high_threshold;
   ADCx->LTR = low_threshold;
 
-  // Analog watchdog channel 18 (temperature sensor)
+  // Set the Analog watchdog channel
   ADCx->CR1 |= channel;
 
   // Enable the Analog watchdog on a single channel in regular channels
