@@ -12,7 +12,7 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 
-// Semaphore for synchronizing button press vents with its external interrupt (EXTI)
+// Semaphore for synchronizing button press events with its external interrupt (EXTI)
 static SemaphoreHandle_t exti15_10_semaphore_handle = NULL;
 
 /**
@@ -63,7 +63,7 @@ void EXTI15_10_IRQHandler(void)
 
   if ((EXTI->PR & EXTI_PR_PR13) == EXTI_PR_PR13)
   {
-    EXTI->PR |= EXTI_PR_PR13;
+    EXTI->PR = EXTI_PR_PR13;
 
     // Give the EXTI15_10 Semaphore to `button_wait_for_acknowledge`
     xSemaphoreGiveFromISR(exti15_10_semaphore_handle, &higher_priority_task_woken);
