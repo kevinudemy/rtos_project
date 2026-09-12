@@ -93,7 +93,7 @@ static void error_handler_task(void *param)
         case EVT_MODBUS_DATA_UPDATE_HOLDING_REGS_FAIL:
         case EVT_MODBUS_DATA_UPDATE_INPUT_REGS_FAIL:
 
-          // Blink the USER LED in a specific pattern for all of the above error types
+          // Blink the USER LED to indicate that an error has occurred
           error_handler_led_blink();
           break;
 
@@ -130,7 +130,7 @@ void error_handler_task_start(void)
     while (1);
   }
 
-  // Add the Error Handler Queue object to the FreeRTOS Queue registery
+  // Add the Error Handler Queue object to the FreeRTOS Queue registry
   vQueueAddToRegistry(error_handler_queue_handle, "Error Handler Queue");
 
   // Create the task
