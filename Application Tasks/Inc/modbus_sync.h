@@ -22,7 +22,7 @@
 #define MODBUS_MUTEX_TIMEOUT_TICKS  pdMS_TO_TICKS(MODBUS_MUTEX_TIMEOUT_MS)
 
 /**
- * Creates the semaphore used for Modbus data synchronization.
+ * Creates the mutex used for Modbus data synchronization.
  * @return ERR_OK if successful, ERR_FAIL otherwise.
  */
 error_t modbus_sync_create(void);
@@ -30,13 +30,15 @@ error_t modbus_sync_create(void);
 /**
  * Locks the semaphore to safely access Modbus data.
  * Waits for up to MODBUS_MUTEX_TIMEOUT_TICKS for the semaphore to become available.
- * @return ERR_OK if successful, ERR_MUTEX_TIMEOUT if timed out, ERR_MUTEX_NOT_CREATED if the mutex was not created.
+ * @return ERR_OK if successful, MODBUS_MUTEX_TIMEOUT if timed out,
+ *         or MODBUS_MUTEX_NOT_CREATED if the mutex was not created.
  */
 error_t modbus_sync_lock(void);
 
 /**
  * Unlocks the semaphore after accessing Modbus data.
- * @return ERR_OK if successful, ERR_MUTEX_NOT_CREATED if mutex is not created.
+ * @return ERR_OK if successful, MODBUS_MUTEX_UNLOCK_FAIL if unlocking fails,
+ *         or MODBUS_MUTEX_NOT_CREATED if the mutex was not created.
  */
 error_t modbus_sync_unlock(void);
 

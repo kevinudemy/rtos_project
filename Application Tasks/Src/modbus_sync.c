@@ -2,7 +2,7 @@
  * modbus_sync.c
  *
  * Contains the synchronization function definitions for locking and unlocking access
- * to shared Modbus registers, ensuring data consistancy during concurrent operations.
+ * to shared Modbus registers, ensuring data consistency during concurrent operations.
  */
 
 #include "modbus_sync.h"
