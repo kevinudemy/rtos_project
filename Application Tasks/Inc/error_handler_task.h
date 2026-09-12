@@ -36,6 +36,7 @@ typedef enum
   // Modbus Mutex errors
   EVT_MODBUS_MUTEX_NOT_CREATED,
   EVT_MODBUS_MUTEX_TIMEOUT,
+  EVT_MODBUS_MUTEX_UNLOCK_FAIL,
 
   // Modbus Middleware UART Tx error
   EVT_MODBUS_UART_TX_ERROR,

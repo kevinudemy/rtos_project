@@ -338,6 +338,11 @@ static error_t process_input_registers_update(modbus_data_mgr_processing_msg_t d
     data_update_msg.data.hum
   };
 
+  if (num_regs > (sizeof(sensor_data) / sizeof(sensor_data[0])))
+  {
+    return MODBUS_INVALID_REG_COUNT;
+  }
+
   for (uint16_t i = 0; i < num_regs && status == ERR_OK; i++)
   {
     uint16_t current_reg_address = start_address + i;
@@ -429,7 +434,10 @@ static void modbus_data_mgr_task(void *param)
           modbus_data_mgr_send_feedback_msg(feedback_msg.status);
         }
 
-        modbus_sync_unlock();
+        if (modbus_sync_unlock() != ERR_OK)
+        {
+          error_handler_send_msg(EVT_MODBUS_MUTEX_UNLOCK_FAIL);
+        }
       }
       else
       {
@@ -487,7 +495,7 @@ void modbus_data_mgr_start(void)
   modbus_data_mgr_queue_handle = xQueueCreate((UBaseType_t) 10, sizeof(modbus_data_mgr_processing_msg_t));
   configASSERT(modbus_data_mgr_queue_handle != NULL);
 
-  // Add the Modbus Data Manager Queue object to the FreeRTOS Queue registery
+  // Add the Modbus Data Manager Queue object to the FreeRTOS Queue registry
   vQueueAddToRegistry(modbus_data_mgr_queue_handle, "Modbus Data Mgr Queue");
 
   configASSERT(xTaskCreate(modbus_data_mgr_task,

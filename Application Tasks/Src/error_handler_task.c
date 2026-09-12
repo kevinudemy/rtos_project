@@ -78,6 +78,7 @@ static void error_handler_task(void *param)
         // Modbus Mutex errors
         case EVT_MODBUS_MUTEX_NOT_CREATED:
         case EVT_MODBUS_MUTEX_TIMEOUT:
+        case EVT_MODBUS_MUTEX_UNLOCK_FAIL:
 
         // Modbus Middleware UART Tx error
         case EVT_MODBUS_UART_TX_ERROR:
