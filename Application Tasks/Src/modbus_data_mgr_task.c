@@ -441,7 +441,14 @@ static void modbus_data_mgr_task(void *param)
       }
       else
       {
-        error_handler_send_msg(EVT_MODBUS_MUTEX_TIMEOUT);
+        if (lock_status == MODBUS_MUTEX_NOT_CREATED)
+        {
+          error_handler_send_msg(EVT_MODBUS_MUTEX_NOT_CREATED);
+        }
+        else
+        {
+          error_handler_send_msg(EVT_MODBUS_MUTEX_TIMEOUT);
+        }
       }
     }
   }
