@@ -71,7 +71,7 @@ static void sensors_task(void *params)
 
   // Get the sampling interval from the Modbus Holding registers and update the xFrequency variable
   uint16_t sampling_interval;
-  modbus_data_get_holding_register(HOLDING_SENSORS_SAMPLING_INTERVAL, &sampling_interval);
+  configASSERT(modbus_data_get_holding_register(HOLDING_SENSORS_SAMPLING_INTERVAL, &sampling_interval) == ERR_OK);
   xFrequency = pdMS_TO_TICKS(sampling_interval);
 
   // Set the USER LED to ON to signify VOC sensor warmup
@@ -107,11 +107,6 @@ static void sensors_task(void *params)
         }
       }
     }
-
-    //        1) Read VOC index, temperature and humidity
-    //        2) If sensor read successful;
-    //            Check if VOC sensor is warmed up (value not 0), toggle LED, update sensor task data structure, update Modbus Data Manager w/sensor data.
-    //        3) Else; let the Error Handler know by sending EVT_SENSOR_READ_FAIL.
 
     // Read VOC index, temperature and humidity
     sensors_task_status = sensirion_measure_voc_index_with_rh_t(&voc_index_sens,
@@ -163,7 +158,7 @@ void sensors_task_start(void)
   sensors_task_queue_handle = xQueueCreate((UBaseType_t) 10, sizeof(sensors_msg_t));
   configASSERT(sensors_task_queue_handle != NULL);
 
-  // Add the Sensors Task Queue object to the FreeRTOS Queue registery
+  // Add the Sensors Task Queue object to the FreeRTOS Queue registry
   vQueueAddToRegistry(sensors_task_queue_handle, "Sensors Task Queue");
 
   configASSERT(pdPASS == xTaskCreate(sensors_task,
