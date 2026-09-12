@@ -13,7 +13,10 @@
 #include "tim.h"
 #include "iwdg.h"
 
-// Global health flags
+// Critical-task heartbeat flags.
+// Each monitored task sets its flag after completing a successful execution cycle.
+// The System Health Monitor clears the flags after a healthy watchdog cycle so that
+// every critical task must report healthy again during the next supervision window.
 volatile bool g_sensors_task_ok = false;
 // ... Add more flags for other critical tasks if needed
 
@@ -111,15 +114,18 @@ static void sys_health_monitor_task(void *param)
       ADC1_CONVERSION_COMPLETE = 0;
     }
 
-    // Check if all critical tasks are running correctly
+    // A healthy system requires every monitored task to have reported successful
+    // execution during this supervision window and all system health checks to pass.
     system_healthy = g_sensors_task_ok && mcu_temp_ok;
 
     if (system_healthy)
     {
       iwdg_reset();
 
+      // Consume the task heartbeats so each critical task must report healthy
+      // again before the next watchdog reset.
       g_sensors_task_ok = false;
-      // ... reset any other task flags as well
+      // ... Reset additional critical-task heartbeat flags here
     }
     else
     {

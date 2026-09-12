@@ -14,9 +14,6 @@
 /**
  * Enumeration of Function Code definitions.
  */
-/**
- * Enumeration of Function Code definitions.
- */
 typedef enum
 {
   READ_COILS            = 0x01,
@@ -30,7 +27,7 @@ typedef enum
 } modbus_function_codes_e;
 
 /**
- * Handle for the feedback queue used to retrieve the satus of requests processed by the Modbus Data Manager.
+ * Handle for the feedback queue used to retrieve the status of requests processed by the Modbus Data Manager.
  */
 extern QueueHandle_t modbus_feedback_queue_handle;
 

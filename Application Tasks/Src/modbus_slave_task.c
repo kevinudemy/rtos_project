@@ -38,7 +38,11 @@ static error_t handle_modbus_status_and_send_data_update(error_t status,
 {
   error_t result;
 
-  modbus_sync_unlock();
+  if (modbus_sync_unlock() != ERR_OK)
+  {
+    error_handler_send_msg(EVT_MODBUS_MUTEX_UNLOCK_FAIL);
+    return ERR_FAIL;
+  }
 
   if (status == ERR_OK)
   {
@@ -211,12 +215,22 @@ static void modbus_slave_task(void *param)
 
               if (mutex_locked)
               {
-                modbus_sync_unlock();
+                if (modbus_sync_unlock() != ERR_OK)
+                {
+                  error_handler_send_msg(EVT_MODBUS_MUTEX_UNLOCK_FAIL);
+                }
               }
             }
             else
             {
-              error_handler_send_msg(EVT_MODBUS_MUTEX_TIMEOUT);
+              if (lock_status == MODBUS_MUTEX_NOT_CREATED)
+              {
+                error_handler_send_msg(EVT_MODBUS_MUTEX_NOT_CREATED);
+              }
+              else
+              {
+                error_handler_send_msg(EVT_MODBUS_MUTEX_TIMEOUT);
+              }
             }
           }
         }
@@ -242,7 +256,7 @@ void modbus_slave_tasks_start(void)
   modbus_feedback_queue_handle = xQueueCreate(10, sizeof(modbus_data_mgr_feedback_msg_t));
   configASSERT(modbus_feedback_queue_handle != NULL);
 
-  // Add the Modbus Feedback Queue object to the FreeRTOS Queue registery
+  // Add the Modbus Feedback Queue object to the FreeRTOS Queue registry
   vQueueAddToRegistry(modbus_feedback_queue_handle, "Modbus Slave Feedback Queue");
 
   // Start the Modbus Data Manager Task

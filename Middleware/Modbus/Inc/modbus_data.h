@@ -15,7 +15,7 @@
 
 /**
  * Default settings used for Holding Register data.
- * @Note: Can be moved to a file specific to handling default data if necessary.
+ * @note: Can be moved to a file specific to handling default data if necessary.
  */
 #define DEFAULT_SAMPLING_INTERVAL     (2000)
 #define DEFAULT_ALARM_MAX_VOC_INDEX   (250)
@@ -50,7 +50,7 @@ error_t modbus_data_set_holding_register_and_data(holding_registers_index_e inde
 
 /**
  * Retrieves the current state of the holding registers in NVS.
- * @return input_registers_t The current input register values.
+ * @return The current NVS holding register values.
  */
 modbus_nvs_holding_registers_t modbus_get_nvs_holding_registers(void);
 
@@ -81,7 +81,7 @@ error_t modbus_data_set_input_register_and_data(input_registers_index_e index, u
 
 /**
  * Retrieves the current state of the input registers in NVS.
- * @return input_registers_t The current input register values.
+ * @return The current NVS input register values.
  */
 modbus_nvs_input_registers_t modbus_get_nvs_input_registers(void);
 
@@ -103,8 +103,8 @@ error_t modbus_data_set_coil(uint16_t index, uint8_t value);
 
 /**
  * Sets the value of a specified discrete input.
- * @param The address or index of the discrete input to be set.
- * @param The value to set (0 or 1).
+ * @param index the index of the discrete input.
+ * @param value the value to be set (0 or 1).
  * @return ERR_OK if successful, otherwise relevant error code.
  */
 error_t modbus_data_set_discrete_input(uint16_t index, uint8_t value);
